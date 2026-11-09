@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+psycopg[binary]
+pymongo
+redis
+neo4j
+qdrant-client
+sentence-transformers
+pytest
+httpx
+python-dotenv

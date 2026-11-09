@@ -1,0 +1,143 @@
+import json
+from pathlib import Path
+
+OUTPUT = Path("data/policy_test_cases.json")
+
+# Canonical policy IDs refer to the first copy
+# of each unique policy passage.
+
+CASES = [
+    {
+        "id": "POL01",
+        "query": "Can I claim expenses for travel required by my company?",
+        "relevant_policy_ids": ["policy_001"],
+    },
+    {
+        "id": "POL02",
+        "query": "Can I take a taxi when public transportation is unavailable?",
+        "relevant_policy_ids": ["policy_002"],
+    },
+    {
+        "id": "POL03",
+        "query": "Is there a maximum nightly hotel allowance?",
+        "relevant_policy_ids": ["policy_003"],
+    },
+    {
+        "id": "POL04",
+        "query": "Do I need approval before purchasing a company laptop?",
+        "relevant_policy_ids": ["policy_004"],
+    },
+    {
+        "id": "POL05",
+        "query": "Can I reimburse dinner with a customer if I record the attendees?",
+        "relevant_policy_ids": ["policy_005"],
+    },
+    {
+        "id": "POL06",
+        "query": "Can I purchase stationery using my department budget?",
+        "relevant_policy_ids": ["policy_006"],
+    },
+    {
+        "id": "POL07",
+        "query": "Am I allowed to book business class for a work flight?",
+        "relevant_policy_ids": ["policy_007"],
+    },
+    {
+        "id": "POL08",
+        "query": "What information must appear on a receipt?",
+        "relevant_policy_ids": ["policy_008"],
+    },
+    {
+        "id": "POL09",
+        "query": "Who must approve a new software subscription?",
+        "relevant_policy_ids": ["policy_009"],
+    },
+    {
+        "id": "POL10",
+        "query": "Should I travel by train instead of flying a short distance?",
+        "relevant_policy_ids": ["policy_010"],
+    },
+    {
+        "id": "POL11",
+        "query": "My expense exceeds my approval limit. What happens next?",
+        "relevant_policy_ids": ["policy_011"],
+    },
+    {
+        "id": "POL12",
+        "query": "Can I claim a hotel room upgrade for personal comfort?",
+        "relevant_policy_ids": ["policy_012"],
+    },
+    {
+        "id": "POL13",
+        "query": "How long after a purchase can I submit an expense?",
+        "relevant_policy_ids": ["policy_013"],
+    },
+    {
+        "id": "POL14",
+        "query": "What happens if an employee submits the same receipt twice?",
+        "relevant_policy_ids": ["policy_014"],
+    },
+    {
+        "id": "POL15",
+        "query": "Which department should be charged for my purchase?",
+        "relevant_policy_ids": ["policy_015"],
+    },
+    {
+        "id": "POL16",
+        "query": "Can an expense be approved if the budget has insufficient funds?",
+        "relevant_policy_ids": ["policy_016"],
+    },
+    {
+        "id": "POL17",
+        "query": "Can a manager approve an expense outside their delegated authority?",
+        "relevant_policy_ids": ["policy_017"],
+    },
+    {
+        "id": "POL18",
+        "query": "What currency details are required for an overseas purchase?",
+        "relevant_policy_ids": ["policy_018"],
+    },
+    {
+        "id": "POL19",
+        "query": "Does an invoice need a VAT number for tax compliance?",
+        "relevant_policy_ids": ["policy_019"],
+    },
+    {
+        "id": "POL20",
+        "query": "Will an expense be rejected if supporting documents are missing?",
+        "relevant_policy_ids": ["policy_020"],
+    },
+]
+
+def main():
+    if OUTPUT.exists():
+        raise FileExistsError(
+            f"{OUTPUT} already exists. "
+            "Existing evaluation labels will not be overwritten."
+        )
+
+    assert len(CASES) == 20
+    assert len({case["id"] for case in CASES}) == 20
+
+    valid_ids = {
+        f"policy_{number:03d}"
+        for number in range(1, 21)
+    }
+
+    for case in CASES:
+        assert case["relevant_policy_ids"]
+        assert set(case["relevant_policy_ids"]) <= valid_ids
+
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+
+    with OUTPUT.open("w", encoding="utf-8") as file:
+        json.dump(CASES, file, indent=2, ensure_ascii=False)
+
+    print("SUCCESS: Policy evaluation dataset generated.")
+    print("Total queries:", len(CASES))
+    print("Canonical policy groups:", len(valid_ids))
+    print("Output:", OUTPUT)
+
+
+if __name__ == "__main__":
+    main()

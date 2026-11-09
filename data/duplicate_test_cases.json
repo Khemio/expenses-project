@@ -1,0 +1,202 @@
+[
+  {
+    "id": "DUP01",
+    "receipt_a": "synthetic_receipt_0001",
+    "receipt_b": "synthetic_receipt_0001",
+    "text_a": "Danube Business Supplies receipt dated 2026-06-16. Invoice number HU-SYN-00001. Total amount 1445.79 EUR.",
+    "text_b": "Invoice HU-SYN-00001 issued by Danube Business Supplies. Date: 2026-06-16. Amount payable: 1445.79 EUR.",
+    "expected_duplicate": true
+  },
+  {
+    "id": "DUP02",
+    "receipt_a": "synthetic_receipt_0002",
+    "receipt_b": "synthetic_receipt_0002",
+    "text_a": "Rhein Professional Supplies receipt dated 2026-07-01. Invoice number DE-SYN-00002. Total amount 328.02 EUR.",
+    "text_b": "Invoice DE-SYN-00002 issued by Rhein Professional Supplies. Date: 2026-07-01. Amount payable: 328.02 EUR.",
+    "expected_duplicate": true
+  },
+  {
+    "id": "DUP03",
+    "receipt_a": "synthetic_receipt_0003",
+    "receipt_b": "synthetic_receipt_0003",
+    "text_a": "Pannon Office Solutions receipt dated 2026-05-24. Invoice number HU-SYN-00003. Total amount 233.04 EUR.",
+    "text_b": "Invoice HU-SYN-00003 issued by Pannon Office Solutions. Date: 2026-05-24. Amount payable: 233.04 EUR.",
+    "expected_duplicate": true
+  },
+  {
+    "id": "DUP04",
+    "receipt_a": "synthetic_receipt_0004",
+    "receipt_b": "synthetic_receipt_0004",
+    "text_a": "Danube Business Supplies receipt dated 2026-09-22. Invoice number HU-SYN-00004. Total amount 16.65 EUR.",
+    "text_b": "Invoice HU-SYN-00004 issued by Danube Business Supplies. Date: 2026-09-22. Amount payable: 16.65 EUR.",
+    "expected_duplicate": true
+  },
+  {
+    "id": "DUP05",
+    "receipt_a": "synthetic_receipt_0005",
+    "receipt_b": "synthetic_receipt_0005",
+    "text_a": "Pannon Office Solutions receipt dated 2026-05-04. Invoice number HU-SYN-00005. Total amount 212.21 EUR.",
+    "text_b": "Invoice HU-SYN-00005 issued by Pannon Office Solutions. Date: 2026-05-04. Amount payable: 212.21 EUR.",
+    "expected_duplicate": true
+  },
+  {
+    "id": "DUP06",
+    "receipt_a": "synthetic_receipt_0006",
+    "receipt_b": "synthetic_receipt_0006",
+    "text_a": "Munich Software Services receipt dated 2026-10-12. Invoice number DE-SYN-00006. Total amount 740.38 EUR.",
+    "text_b": "Invoice DE-SYN-00006 issued by Munich Software Services. Date: 2026-10-12. Amount payable: 740.38 EUR.",
+    "expected_duplicate": true
+  },
+  {
+    "id": "DUP07",
+    "receipt_a": "synthetic_receipt_0007",
+    "receipt_b": "synthetic_receipt_0007",
+    "text_a": "Rhein Professional Supplies receipt dated 2026-09-01. Invoice number DE-SYN-00007. Total amount 1005.19 EUR.",
+    "text_b": "Invoice DE-SYN-00007 issued by Rhein Professional Supplies. Date: 2026-09-01. Amount payable: 1005.19 EUR.",
+    "expected_duplicate": true
+  },
+  {
+    "id": "DUP08",
+    "receipt_a": "synthetic_receipt_0008",
+    "receipt_b": "synthetic_receipt_0008",
+    "text_a": "Munich Software Services receipt dated 2026-01-09. Invoice number DE-SYN-00008. Total amount 637.43 EUR.",
+    "text_b": "Invoice DE-SYN-00008 issued by Munich Software Services. Date: 2026-01-09. Amount payable: 637.43 EUR.",
+    "expected_duplicate": true
+  },
+  {
+    "id": "DUP09",
+    "receipt_a": "synthetic_receipt_0009",
+    "receipt_b": "synthetic_receipt_0009",
+    "text_a": "Budapest Technology Services receipt dated 2026-07-27. Invoice number HU-SYN-00009. Total amount 155.22 EUR.",
+    "text_b": "Invoice HU-SYN-00009 issued by Budapest Technology Services. Date: 2026-07-27. Amount payable: 155.22 EUR.",
+    "expected_duplicate": true
+  },
+  {
+    "id": "DUP10",
+    "receipt_a": "synthetic_receipt_0010",
+    "receipt_b": "synthetic_receipt_0010",
+    "text_a": "Pannon Office Solutions receipt dated 2026-10-25. Invoice number HU-SYN-00010. Total amount 501.35 EUR.",
+    "text_b": "Invoice HU-SYN-00010 issued by Pannon Office Solutions. Date: 2026-10-25. Amount payable: 501.35 EUR.",
+    "expected_duplicate": true
+  },
+  {
+    "id": "DUP11",
+    "receipt_a": "synthetic_receipt_0011",
+    "receipt_b": "synthetic_receipt_0026",
+    "text_a": "Pannon Office Solutions receipt dated 2026-09-29. Invoice number HU-SYN-00011. Total amount 775.44 EUR.",
+    "text_b": "Invoice AT-SYN-00026 issued by Vienna Office Systems. Date: 2026-09-09. Amount payable: 282.60 EUR.",
+    "expected_duplicate": false
+  },
+  {
+    "id": "DUP12",
+    "receipt_a": "synthetic_receipt_0012",
+    "receipt_b": "synthetic_receipt_0027",
+    "text_a": "Vienna Office Systems receipt dated 2026-06-19. Invoice number AT-SYN-00012. Total amount 821.40 EUR.",
+    "text_b": "Invoice AT-SYN-00027 issued by Alpine Business Services. Date: 2026-03-18. Amount payable: 547.74 EUR.",
+    "expected_duplicate": false
+  },
+  {
+    "id": "DUP13",
+    "receipt_a": "synthetic_receipt_0013",
+    "receipt_b": "synthetic_receipt_0028",
+    "text_a": "Vienna Office Systems receipt dated 2026-06-06. Invoice number AT-SYN-00013. Total amount 405.09 EUR.",
+    "text_b": "Invoice DE-SYN-00028 issued by Munich Software Services. Date: 2026-05-08. Amount payable: 65.82 EUR.",
+    "expected_duplicate": false
+  },
+  {
+    "id": "DUP14",
+    "receipt_a": "synthetic_receipt_0014",
+    "receipt_b": "synthetic_receipt_0029",
+    "text_a": "Alpine Business Services receipt dated 2026-04-09. Invoice number AT-SYN-00014. Total amount 258.14 EUR.",
+    "text_b": "Invoice AT-SYN-00029 issued by Vienna Office Systems. Date: 2026-04-26. Amount payable: 894.71 EUR.",
+    "expected_duplicate": false
+  },
+  {
+    "id": "DUP15",
+    "receipt_a": "synthetic_receipt_0015",
+    "receipt_b": "synthetic_receipt_0030",
+    "text_a": "Vienna Office Systems receipt dated 2026-10-02. Invoice number AT-SYN-00015. Total amount 506.85 EUR.",
+    "text_b": "Invoice DE-SYN-00030 issued by Berlin Business Equipment. Date: 2026-08-15. Amount payable: 690.49 EUR.",
+    "expected_duplicate": false
+  },
+  {
+    "id": "DUP16",
+    "receipt_a": "synthetic_receipt_0016",
+    "receipt_b": "synthetic_receipt_0031",
+    "text_a": "Pannon Office Solutions receipt dated 2026-04-21. Invoice number HU-SYN-00016. Total amount 582.11 EUR.",
+    "text_b": "Invoice HU-SYN-00031 issued by Pannon Office Solutions. Date: 2026-10-19. Amount payable: 500.26 EUR.",
+    "expected_duplicate": false
+  },
+  {
+    "id": "DUP17",
+    "receipt_a": "synthetic_receipt_0017",
+    "receipt_b": "synthetic_receipt_0032",
+    "text_a": "Berlin Business Equipment receipt dated 2026-09-26. Invoice number DE-SYN-00017. Total amount 412.41 EUR.",
+    "text_b": "Invoice HU-SYN-00032 issued by Budapest Technology Services. Date: 2026-02-20. Amount payable: 1748.11 EUR.",
+    "expected_duplicate": false
+  },
+  {
+    "id": "DUP18",
+    "receipt_a": "synthetic_receipt_0018",
+    "receipt_b": "synthetic_receipt_0033",
+    "text_a": "Rhein Professional Supplies receipt dated 2026-04-10. Invoice number DE-SYN-00018. Total amount 75.88 EUR.",
+    "text_b": "Invoice DE-SYN-00033 issued by Rhein Professional Supplies. Date: 2026-04-19. Amount payable: 919.87 EUR.",
+    "expected_duplicate": false
+  },
+  {
+    "id": "DUP19",
+    "receipt_a": "synthetic_receipt_0019",
+    "receipt_b": "synthetic_receipt_0034",
+    "text_a": "Budapest Technology Services receipt dated 2026-04-02. Invoice number HU-SYN-00019. Total amount 573.01 EUR.",
+    "text_b": "Invoice HU-SYN-00034 issued by Pannon Office Solutions. Date: 2026-05-03. Amount payable: 122.92 EUR.",
+    "expected_duplicate": false
+  },
+  {
+    "id": "DUP20",
+    "receipt_a": "synthetic_receipt_0020",
+    "receipt_b": "synthetic_receipt_0035",
+    "text_a": "Vienna Office Systems receipt dated 2026-03-06. Invoice number AT-SYN-00020. Total amount 1550.20 EUR.",
+    "text_b": "Invoice NL-SYN-00035 issued by Amsterdam Technology Group. Date: 2026-01-02. Amount payable: 122.58 EUR.",
+    "expected_duplicate": false
+  },
+  {
+    "id": "DUP21",
+    "receipt_a": "synthetic_receipt_0021",
+    "receipt_b": "synthetic_receipt_0036",
+    "text_a": "Amsterdam Technology Group receipt dated 2026-10-11. Invoice number NL-SYN-00021. Total amount 292.93 EUR.",
+    "text_b": "Invoice NL-SYN-00036 issued by Amsterdam Technology Group. Date: 2026-08-29. Amount payable: 828.32 EUR.",
+    "expected_duplicate": false
+  },
+  {
+    "id": "DUP22",
+    "receipt_a": "synthetic_receipt_0022",
+    "receipt_b": "synthetic_receipt_0037",
+    "text_a": "Alpine Business Services receipt dated 2026-02-22. Invoice number AT-SYN-00022. Total amount 1366.80 EUR.",
+    "text_b": "Invoice DE-SYN-00037 issued by Rhein Professional Supplies. Date: 2026-05-28. Amount payable: 756.80 EUR.",
+    "expected_duplicate": false
+  },
+  {
+    "id": "DUP23",
+    "receipt_a": "synthetic_receipt_0023",
+    "receipt_b": "synthetic_receipt_0038",
+    "text_a": "Berlin Business Equipment receipt dated 2026-05-26. Invoice number DE-SYN-00023. Total amount 1654.87 EUR.",
+    "text_b": "Invoice NL-SYN-00038 issued by Dutch Business Solutions. Date: 2026-02-06. Amount payable: 307.55 EUR.",
+    "expected_duplicate": false
+  },
+  {
+    "id": "DUP24",
+    "receipt_a": "synthetic_receipt_0024",
+    "receipt_b": "synthetic_receipt_0039",
+    "text_a": "Danube Business Supplies receipt dated 2026-06-24. Invoice number HU-SYN-00024. Total amount 627.33 EUR.",
+    "text_b": "Invoice HU-SYN-00039 issued by Budapest Technology Services. Date: 2026-04-12. Amount payable: 446.75 EUR.",
+    "expected_duplicate": false
+  },
+  {
+    "id": "DUP25",
+    "receipt_a": "synthetic_receipt_0025",
+    "receipt_b": "synthetic_receipt_0040",
+    "text_a": "Amsterdam Technology Group receipt dated 2026-09-02. Invoice number NL-SYN-00025. Total amount 811.85 EUR.",
+    "text_b": "Invoice DE-SYN-00040 issued by Berlin Business Equipment. Date: 2026-04-26. Amount payable: 376.88 EUR.",
+    "expected_duplicate": false
+  }
+]

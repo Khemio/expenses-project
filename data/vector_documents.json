@@ -1,0 +1,1437 @@
+[
+  {
+    "id": "receipt_001",
+    "document_type": "receipt",
+    "text": "Office Supplies Ltd invoice INV-0001. Purchase of office supplies. Total amount 580.89 EUR.",
+    "source_id": "receipt_001",
+    "filter_group": "rare"
+  },
+  {
+    "id": "receipt_002",
+    "document_type": "receipt",
+    "text": "City Taxi invoice INV-0002. Purchase of taxi travel. Total amount 37.13 EUR.",
+    "source_id": "receipt_002",
+    "filter_group": "rare"
+  },
+  {
+    "id": "receipt_003",
+    "document_type": "receipt",
+    "text": "Tech Store invoice INV-0003. Purchase of computer equipment. Total amount 258.40 EUR.",
+    "source_id": "receipt_003",
+    "filter_group": "rare"
+  },
+  {
+    "id": "receipt_004",
+    "document_type": "receipt",
+    "text": "Hotel Central invoice INV-0004. Purchase of hotel accommodation. Total amount 212.54 EUR.",
+    "source_id": "receipt_004",
+    "filter_group": "rare"
+  },
+  {
+    "id": "receipt_005",
+    "document_type": "receipt",
+    "text": "Air Travel Services invoice INV-0005. Purchase of air travel. Total amount 666.78 EUR.",
+    "source_id": "receipt_005",
+    "filter_group": "rare"
+  },
+  {
+    "id": "receipt_006",
+    "document_type": "receipt",
+    "text": "Business Meals GmbH invoice INV-0006. Purchase of business meals. Total amount 613.88 EUR.",
+    "source_id": "receipt_006",
+    "filter_group": "rare"
+  },
+  {
+    "id": "receipt_007",
+    "document_type": "receipt",
+    "text": "Print Solutions invoice INV-0007. Purchase of printing. Total amount 804.58 EUR.",
+    "source_id": "receipt_007",
+    "filter_group": "rare"
+  },
+  {
+    "id": "receipt_008",
+    "document_type": "receipt",
+    "text": "Furniture World invoice INV-0008. Purchase of office furniture. Total amount 91.94 EUR.",
+    "source_id": "receipt_008",
+    "filter_group": "rare"
+  },
+  {
+    "id": "receipt_009",
+    "document_type": "receipt",
+    "text": "Software Cloud invoice INV-0009. Purchase of software subscriptions. Total amount 388.40 EUR.",
+    "source_id": "receipt_009",
+    "filter_group": "rare"
+  },
+  {
+    "id": "receipt_010",
+    "document_type": "receipt",
+    "text": "Rail Travel Ltd invoice INV-0010. Purchase of rail travel. Total amount 41.37 EUR.",
+    "source_id": "receipt_010",
+    "filter_group": "rare"
+  },
+  {
+    "id": "receipt_011",
+    "document_type": "receipt",
+    "text": "Office Supplies Ltd invoice INV-0011. Purchase of office supplies. Total amount 208.49 EUR.",
+    "source_id": "receipt_011",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_012",
+    "document_type": "receipt",
+    "text": "City Taxi invoice INV-0012. Purchase of taxi travel. Total amount 462.24 EUR.",
+    "source_id": "receipt_012",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_013",
+    "document_type": "receipt",
+    "text": "Tech Store invoice INV-0013. Purchase of computer equipment. Total amount 38.48 EUR.",
+    "source_id": "receipt_013",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_014",
+    "document_type": "receipt",
+    "text": "Hotel Central invoice INV-0014. Purchase of hotel accommodation. Total amount 190.97 EUR.",
+    "source_id": "receipt_014",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_015",
+    "document_type": "receipt",
+    "text": "Air Travel Services invoice INV-0015. Purchase of air travel. Total amount 590.15 EUR.",
+    "source_id": "receipt_015",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_016",
+    "document_type": "receipt",
+    "text": "Business Meals GmbH invoice INV-0016. Purchase of business meals. Total amount 497.27 EUR.",
+    "source_id": "receipt_016",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_017",
+    "document_type": "receipt",
+    "text": "Print Solutions invoice INV-0017. Purchase of printing. Total amount 210.09 EUR.",
+    "source_id": "receipt_017",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_018",
+    "document_type": "receipt",
+    "text": "Furniture World invoice INV-0018. Purchase of office furniture. Total amount 536.50 EUR.",
+    "source_id": "receipt_018",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_019",
+    "document_type": "receipt",
+    "text": "Software Cloud invoice INV-0019. Purchase of software subscriptions. Total amount 731.35 EUR.",
+    "source_id": "receipt_019",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_020",
+    "document_type": "receipt",
+    "text": "Rail Travel Ltd invoice INV-0020. Purchase of rail travel. Total amount 20.75 EUR.",
+    "source_id": "receipt_020",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_021",
+    "document_type": "receipt",
+    "text": "Office Supplies Ltd invoice INV-0021. Purchase of office supplies. Total amount 728.15 EUR.",
+    "source_id": "receipt_021",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_022",
+    "document_type": "receipt",
+    "text": "City Taxi invoice INV-0022. Purchase of taxi travel. Total amount 632.85 EUR.",
+    "source_id": "receipt_022",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_023",
+    "document_type": "receipt",
+    "text": "Tech Store invoice INV-0023. Purchase of computer equipment. Total amount 316.12 EUR.",
+    "source_id": "receipt_023",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_024",
+    "document_type": "receipt",
+    "text": "Hotel Central invoice INV-0024. Purchase of hotel accommodation. Total amount 152.60 EUR.",
+    "source_id": "receipt_024",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_025",
+    "document_type": "receipt",
+    "text": "Air Travel Services invoice INV-0025. Purchase of air travel. Total amount 862.13 EUR.",
+    "source_id": "receipt_025",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_026",
+    "document_type": "receipt",
+    "text": "Business Meals GmbH invoice INV-0026. Purchase of business meals. Total amount 312.89 EUR.",
+    "source_id": "receipt_026",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_027",
+    "document_type": "receipt",
+    "text": "Print Solutions invoice INV-0027. Purchase of printing. Total amount 97.08 EUR.",
+    "source_id": "receipt_027",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_028",
+    "document_type": "receipt",
+    "text": "Furniture World invoice INV-0028. Purchase of office furniture. Total amount 100.59 EUR.",
+    "source_id": "receipt_028",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_029",
+    "document_type": "receipt",
+    "text": "Software Cloud invoice INV-0029. Purchase of software subscriptions. Total amount 765.03 EUR.",
+    "source_id": "receipt_029",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_030",
+    "document_type": "receipt",
+    "text": "Rail Travel Ltd invoice INV-0030. Purchase of rail travel. Total amount 549.30 EUR.",
+    "source_id": "receipt_030",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_031",
+    "document_type": "receipt",
+    "text": "Office Supplies Ltd invoice INV-0031. Purchase of office supplies. Total amount 729.31 EUR.",
+    "source_id": "receipt_031",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_032",
+    "document_type": "receipt",
+    "text": "City Taxi invoice INV-0032. Purchase of taxi travel. Total amount 660.81 EUR.",
+    "source_id": "receipt_032",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_033",
+    "document_type": "receipt",
+    "text": "Tech Store invoice INV-0033. Purchase of computer equipment. Total amount 489.56 EUR.",
+    "source_id": "receipt_033",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_034",
+    "document_type": "receipt",
+    "text": "Hotel Central invoice INV-0034. Purchase of hotel accommodation. Total amount 876.21 EUR.",
+    "source_id": "receipt_034",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_035",
+    "document_type": "receipt",
+    "text": "Air Travel Services invoice INV-0035. Purchase of air travel. Total amount 350.00 EUR.",
+    "source_id": "receipt_035",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_036",
+    "document_type": "receipt",
+    "text": "Business Meals GmbH invoice INV-0036. Purchase of business meals. Total amount 503.56 EUR.",
+    "source_id": "receipt_036",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_037",
+    "document_type": "receipt",
+    "text": "Print Solutions invoice INV-0037. Purchase of printing. Total amount 749.02 EUR.",
+    "source_id": "receipt_037",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_038",
+    "document_type": "receipt",
+    "text": "Furniture World invoice INV-0038. Purchase of office furniture. Total amount 562.39 EUR.",
+    "source_id": "receipt_038",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_039",
+    "document_type": "receipt",
+    "text": "Software Cloud invoice INV-0039. Purchase of software subscriptions. Total amount 777.61 EUR.",
+    "source_id": "receipt_039",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_040",
+    "document_type": "receipt",
+    "text": "Rail Travel Ltd invoice INV-0040. Purchase of rail travel. Total amount 525.96 EUR.",
+    "source_id": "receipt_040",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_041",
+    "document_type": "receipt",
+    "text": "Office Supplies Ltd invoice INV-0041. Purchase of office supplies. Total amount 638.55 EUR.",
+    "source_id": "receipt_041",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_042",
+    "document_type": "receipt",
+    "text": "City Taxi invoice INV-0042. Purchase of taxi travel. Total amount 55.55 EUR.",
+    "source_id": "receipt_042",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_043",
+    "document_type": "receipt",
+    "text": "Tech Store invoice INV-0043. Purchase of computer equipment. Total amount 216.69 EUR.",
+    "source_id": "receipt_043",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_044",
+    "document_type": "receipt",
+    "text": "Hotel Central invoice INV-0044. Purchase of hotel accommodation. Total amount 271.11 EUR.",
+    "source_id": "receipt_044",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_045",
+    "document_type": "receipt",
+    "text": "Air Travel Services invoice INV-0045. Purchase of air travel. Total amount 85.62 EUR.",
+    "source_id": "receipt_045",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_046",
+    "document_type": "receipt",
+    "text": "Business Meals GmbH invoice INV-0046. Purchase of business meals. Total amount 221.02 EUR.",
+    "source_id": "receipt_046",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_047",
+    "document_type": "receipt",
+    "text": "Print Solutions invoice INV-0047. Purchase of printing. Total amount 104.39 EUR.",
+    "source_id": "receipt_047",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_048",
+    "document_type": "receipt",
+    "text": "Furniture World invoice INV-0048. Purchase of office furniture. Total amount 261.01 EUR.",
+    "source_id": "receipt_048",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_049",
+    "document_type": "receipt",
+    "text": "Software Cloud invoice INV-0049. Purchase of software subscriptions. Total amount 577.58 EUR.",
+    "source_id": "receipt_049",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_050",
+    "document_type": "receipt",
+    "text": "Rail Travel Ltd invoice INV-0050. Purchase of rail travel. Total amount 337.88 EUR.",
+    "source_id": "receipt_050",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_051",
+    "document_type": "receipt",
+    "text": "Office Supplies Ltd invoice INV-0051. Purchase of office supplies. Total amount 342.61 EUR.",
+    "source_id": "receipt_051",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_052",
+    "document_type": "receipt",
+    "text": "City Taxi invoice INV-0052. Purchase of taxi travel. Total amount 200.41 EUR.",
+    "source_id": "receipt_052",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_053",
+    "document_type": "receipt",
+    "text": "Tech Store invoice INV-0053. Purchase of computer equipment. Total amount 251.28 EUR.",
+    "source_id": "receipt_053",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_054",
+    "document_type": "receipt",
+    "text": "Hotel Central invoice INV-0054. Purchase of hotel accommodation. Total amount 843.94 EUR.",
+    "source_id": "receipt_054",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_055",
+    "document_type": "receipt",
+    "text": "Air Travel Services invoice INV-0055. Purchase of air travel. Total amount 588.51 EUR.",
+    "source_id": "receipt_055",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_056",
+    "document_type": "receipt",
+    "text": "Business Meals GmbH invoice INV-0056. Purchase of business meals. Total amount 554.08 EUR.",
+    "source_id": "receipt_056",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_057",
+    "document_type": "receipt",
+    "text": "Print Solutions invoice INV-0057. Purchase of printing. Total amount 166.46 EUR.",
+    "source_id": "receipt_057",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_058",
+    "document_type": "receipt",
+    "text": "Furniture World invoice INV-0058. Purchase of office furniture. Total amount 660.28 EUR.",
+    "source_id": "receipt_058",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_059",
+    "document_type": "receipt",
+    "text": "Software Cloud invoice INV-0059. Purchase of software subscriptions. Total amount 159.61 EUR.",
+    "source_id": "receipt_059",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_060",
+    "document_type": "receipt",
+    "text": "Rail Travel Ltd invoice INV-0060. Purchase of rail travel. Total amount 350.82 EUR.",
+    "source_id": "receipt_060",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_061",
+    "document_type": "receipt",
+    "text": "Office Supplies Ltd invoice INV-0061. Purchase of office supplies. Total amount 890.73 EUR.",
+    "source_id": "receipt_061",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_062",
+    "document_type": "receipt",
+    "text": "City Taxi invoice INV-0062. Purchase of taxi travel. Total amount 581.40 EUR.",
+    "source_id": "receipt_062",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_063",
+    "document_type": "receipt",
+    "text": "Tech Store invoice INV-0063. Purchase of computer equipment. Total amount 507.90 EUR.",
+    "source_id": "receipt_063",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_064",
+    "document_type": "receipt",
+    "text": "Hotel Central invoice INV-0064. Purchase of hotel accommodation. Total amount 620.88 EUR.",
+    "source_id": "receipt_064",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_065",
+    "document_type": "receipt",
+    "text": "Air Travel Services invoice INV-0065. Purchase of air travel. Total amount 760.92 EUR.",
+    "source_id": "receipt_065",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_066",
+    "document_type": "receipt",
+    "text": "Business Meals GmbH invoice INV-0066. Purchase of business meals. Total amount 701.76 EUR.",
+    "source_id": "receipt_066",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_067",
+    "document_type": "receipt",
+    "text": "Print Solutions invoice INV-0067. Purchase of printing. Total amount 217.71 EUR.",
+    "source_id": "receipt_067",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_068",
+    "document_type": "receipt",
+    "text": "Furniture World invoice INV-0068. Purchase of office furniture. Total amount 43.41 EUR.",
+    "source_id": "receipt_068",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_069",
+    "document_type": "receipt",
+    "text": "Software Cloud invoice INV-0069. Purchase of software subscriptions. Total amount 294.18 EUR.",
+    "source_id": "receipt_069",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_070",
+    "document_type": "receipt",
+    "text": "Rail Travel Ltd invoice INV-0070. Purchase of rail travel. Total amount 251.95 EUR.",
+    "source_id": "receipt_070",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_071",
+    "document_type": "receipt",
+    "text": "Office Supplies Ltd invoice INV-0071. Purchase of office supplies. Total amount 201.72 EUR.",
+    "source_id": "receipt_071",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_072",
+    "document_type": "receipt",
+    "text": "City Taxi invoice INV-0072. Purchase of taxi travel. Total amount 849.48 EUR.",
+    "source_id": "receipt_072",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_073",
+    "document_type": "receipt",
+    "text": "Tech Store invoice INV-0073. Purchase of computer equipment. Total amount 790.59 EUR.",
+    "source_id": "receipt_073",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_074",
+    "document_type": "receipt",
+    "text": "Hotel Central invoice INV-0074. Purchase of hotel accommodation. Total amount 293.49 EUR.",
+    "source_id": "receipt_074",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_075",
+    "document_type": "receipt",
+    "text": "Air Travel Services invoice INV-0075. Purchase of air travel. Total amount 595.06 EUR.",
+    "source_id": "receipt_075",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_076",
+    "document_type": "receipt",
+    "text": "Business Meals GmbH invoice INV-0076. Purchase of business meals. Total amount 365.13 EUR.",
+    "source_id": "receipt_076",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_077",
+    "document_type": "receipt",
+    "text": "Print Solutions invoice INV-0077. Purchase of printing. Total amount 824.37 EUR.",
+    "source_id": "receipt_077",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_078",
+    "document_type": "receipt",
+    "text": "Furniture World invoice INV-0078. Purchase of office furniture. Total amount 421.08 EUR.",
+    "source_id": "receipt_078",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_079",
+    "document_type": "receipt",
+    "text": "Software Cloud invoice INV-0079. Purchase of software subscriptions. Total amount 249.42 EUR.",
+    "source_id": "receipt_079",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_080",
+    "document_type": "receipt",
+    "text": "Rail Travel Ltd invoice INV-0080. Purchase of rail travel. Total amount 233.27 EUR.",
+    "source_id": "receipt_080",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_081",
+    "document_type": "receipt",
+    "text": "Office Supplies Ltd invoice INV-0081. Purchase of office supplies. Total amount 511.81 EUR.",
+    "source_id": "receipt_081",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_082",
+    "document_type": "receipt",
+    "text": "City Taxi invoice INV-0082. Purchase of taxi travel. Total amount 247.53 EUR.",
+    "source_id": "receipt_082",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_083",
+    "document_type": "receipt",
+    "text": "Tech Store invoice INV-0083. Purchase of computer equipment. Total amount 532.36 EUR.",
+    "source_id": "receipt_083",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_084",
+    "document_type": "receipt",
+    "text": "Hotel Central invoice INV-0084. Purchase of hotel accommodation. Total amount 809.57 EUR.",
+    "source_id": "receipt_084",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_085",
+    "document_type": "receipt",
+    "text": "Air Travel Services invoice INV-0085. Purchase of air travel. Total amount 368.47 EUR.",
+    "source_id": "receipt_085",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_086",
+    "document_type": "receipt",
+    "text": "Business Meals GmbH invoice INV-0086. Purchase of business meals. Total amount 209.10 EUR.",
+    "source_id": "receipt_086",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_087",
+    "document_type": "receipt",
+    "text": "Print Solutions invoice INV-0087. Purchase of printing. Total amount 897.82 EUR.",
+    "source_id": "receipt_087",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_088",
+    "document_type": "receipt",
+    "text": "Furniture World invoice INV-0088. Purchase of office furniture. Total amount 465.93 EUR.",
+    "source_id": "receipt_088",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_089",
+    "document_type": "receipt",
+    "text": "Software Cloud invoice INV-0089. Purchase of software subscriptions. Total amount 95.45 EUR.",
+    "source_id": "receipt_089",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_090",
+    "document_type": "receipt",
+    "text": "Rail Travel Ltd invoice INV-0090. Purchase of rail travel. Total amount 56.70 EUR.",
+    "source_id": "receipt_090",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_091",
+    "document_type": "receipt",
+    "text": "Office Supplies Ltd invoice INV-0091. Purchase of office supplies. Total amount 112.04 EUR.",
+    "source_id": "receipt_091",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_092",
+    "document_type": "receipt",
+    "text": "City Taxi invoice INV-0092. Purchase of taxi travel. Total amount 570.29 EUR.",
+    "source_id": "receipt_092",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_093",
+    "document_type": "receipt",
+    "text": "Tech Store invoice INV-0093. Purchase of computer equipment. Total amount 715.99 EUR.",
+    "source_id": "receipt_093",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_094",
+    "document_type": "receipt",
+    "text": "Hotel Central invoice INV-0094. Purchase of hotel accommodation. Total amount 388.61 EUR.",
+    "source_id": "receipt_094",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_095",
+    "document_type": "receipt",
+    "text": "Air Travel Services invoice INV-0095. Purchase of air travel. Total amount 71.22 EUR.",
+    "source_id": "receipt_095",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_096",
+    "document_type": "receipt",
+    "text": "Business Meals GmbH invoice INV-0096. Purchase of business meals. Total amount 352.73 EUR.",
+    "source_id": "receipt_096",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_097",
+    "document_type": "receipt",
+    "text": "Print Solutions invoice INV-0097. Purchase of printing. Total amount 896.57 EUR.",
+    "source_id": "receipt_097",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_098",
+    "document_type": "receipt",
+    "text": "Furniture World invoice INV-0098. Purchase of office furniture. Total amount 483.27 EUR.",
+    "source_id": "receipt_098",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_099",
+    "document_type": "receipt",
+    "text": "Software Cloud invoice INV-0099. Purchase of software subscriptions. Total amount 874.40 EUR.",
+    "source_id": "receipt_099",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_100",
+    "document_type": "receipt",
+    "text": "Rail Travel Ltd invoice INV-0100. Purchase of rail travel. Total amount 776.79 EUR.",
+    "source_id": "receipt_100",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_101",
+    "document_type": "receipt",
+    "text": "Office Supplies Ltd invoice INV-0001. Purchase of office stationery. Total amount 580.89 EUR.",
+    "source_id": "receipt_101",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_102",
+    "document_type": "receipt",
+    "text": "Office Supplies Ltd invoice INV-0001. Purchase of office stationery. Total amount 580.89 EUR.",
+    "source_id": "receipt_102",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_103",
+    "document_type": "receipt",
+    "text": "Office Supplies Ltd invoice INV-0001. Purchase of office stationery. Total amount 580.89 EUR.",
+    "source_id": "receipt_103",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_104",
+    "document_type": "receipt",
+    "text": "Office Supplies Ltd invoice INV-0001. Purchase of office stationery. Total amount 580.89 EUR.",
+    "source_id": "receipt_104",
+    "filter_group": "common"
+  },
+  {
+    "id": "receipt_105",
+    "document_type": "receipt",
+    "text": "Office Supplies Ltd invoice INV-0001. Purchase of office stationery. Total amount 580.89 EUR.",
+    "source_id": "receipt_105",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_001",
+    "document_type": "policy",
+    "text": "Expense Policy Section 1. Business travel is reimbursable when it is necessary for approved company activities.",
+    "source_id": "policy_001",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_002",
+    "document_type": "policy",
+    "text": "Expense Policy Section 2. Taxi expenses are reimbursable when public transport is unavailable or impractical.",
+    "source_id": "policy_002",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_003",
+    "document_type": "policy",
+    "text": "Expense Policy Section 3. Hotel accommodation must be reasonable and must not exceed the approved nightly allowance.",
+    "source_id": "policy_003",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_004",
+    "document_type": "policy",
+    "text": "Expense Policy Section 4. Computer equipment purchases require manager approval before the purchase is made.",
+    "source_id": "policy_004",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_005",
+    "document_type": "policy",
+    "text": "Expense Policy Section 5. Business meals must have a clear business purpose and include the names of attendees.",
+    "source_id": "policy_005",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_006",
+    "document_type": "policy",
+    "text": "Expense Policy Section 6. Office supplies may be purchased within the approved cost centre budget.",
+    "source_id": "policy_006",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_007",
+    "document_type": "policy",
+    "text": "Expense Policy Section 7. Air travel should use economy class unless an exception is approved by management.",
+    "source_id": "policy_007",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_008",
+    "document_type": "policy",
+    "text": "Expense Policy Section 8. Receipts must include the vendor name, VAT number, transaction date and total amount.",
+    "source_id": "policy_008",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_009",
+    "document_type": "policy",
+    "text": "Expense Policy Section 9. Software subscriptions must be approved by the responsible department manager.",
+    "source_id": "policy_009",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_010",
+    "document_type": "policy",
+    "text": "Expense Policy Section 10. Rail travel is preferred over air travel for eligible short-distance business journeys.",
+    "source_id": "policy_010",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_011",
+    "document_type": "policy",
+    "text": "Expense Policy Section 11. Expenses above the employee's approval limit must be escalated to a higher approver.",
+    "source_id": "policy_011",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_012",
+    "document_type": "policy",
+    "text": "Expense Policy Section 12. Accommodation upgrades and personal expenses are not reimbursable.",
+    "source_id": "policy_012",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_013",
+    "document_type": "policy",
+    "text": "Expense Policy Section 13. Employees must submit expenses within 30 days of the transaction date.",
+    "source_id": "policy_013",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_014",
+    "document_type": "policy",
+    "text": "Expense Policy Section 14. Duplicate expense claims must be rejected and investigated.",
+    "source_id": "policy_014",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_015",
+    "document_type": "policy",
+    "text": "Expense Policy Section 15. Purchases must be assigned to the correct company cost centre.",
+    "source_id": "policy_015",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_016",
+    "document_type": "policy",
+    "text": "Expense Policy Section 16. Expenses must not exceed the remaining approved budget.",
+    "source_id": "policy_016",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_017",
+    "document_type": "policy",
+    "text": "Expense Policy Section 17. A manager may approve expenses only within their delegated authority.",
+    "source_id": "policy_017",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_018",
+    "document_type": "policy",
+    "text": "Expense Policy Section 18. Foreign currency expenses must include the original amount and currency.",
+    "source_id": "policy_018",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_019",
+    "document_type": "policy",
+    "text": "Expense Policy Section 19. VAT information must be present where required by local tax rules.",
+    "source_id": "policy_019",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_020",
+    "document_type": "policy",
+    "text": "Expense Policy Section 20. Expenses with missing supporting documentation may be rejected.",
+    "source_id": "policy_020",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_021",
+    "document_type": "policy",
+    "text": "Expense Policy Section 21. Business travel is reimbursable when it is necessary for approved company activities.",
+    "source_id": "policy_021",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_022",
+    "document_type": "policy",
+    "text": "Expense Policy Section 22. Taxi expenses are reimbursable when public transport is unavailable or impractical.",
+    "source_id": "policy_022",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_023",
+    "document_type": "policy",
+    "text": "Expense Policy Section 23. Hotel accommodation must be reasonable and must not exceed the approved nightly allowance.",
+    "source_id": "policy_023",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_024",
+    "document_type": "policy",
+    "text": "Expense Policy Section 24. Computer equipment purchases require manager approval before the purchase is made.",
+    "source_id": "policy_024",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_025",
+    "document_type": "policy",
+    "text": "Expense Policy Section 25. Business meals must have a clear business purpose and include the names of attendees.",
+    "source_id": "policy_025",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_026",
+    "document_type": "policy",
+    "text": "Expense Policy Section 26. Office supplies may be purchased within the approved cost centre budget.",
+    "source_id": "policy_026",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_027",
+    "document_type": "policy",
+    "text": "Expense Policy Section 27. Air travel should use economy class unless an exception is approved by management.",
+    "source_id": "policy_027",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_028",
+    "document_type": "policy",
+    "text": "Expense Policy Section 28. Receipts must include the vendor name, VAT number, transaction date and total amount.",
+    "source_id": "policy_028",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_029",
+    "document_type": "policy",
+    "text": "Expense Policy Section 29. Software subscriptions must be approved by the responsible department manager.",
+    "source_id": "policy_029",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_030",
+    "document_type": "policy",
+    "text": "Expense Policy Section 30. Rail travel is preferred over air travel for eligible short-distance business journeys.",
+    "source_id": "policy_030",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_031",
+    "document_type": "policy",
+    "text": "Expense Policy Section 31. Expenses above the employee's approval limit must be escalated to a higher approver.",
+    "source_id": "policy_031",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_032",
+    "document_type": "policy",
+    "text": "Expense Policy Section 32. Accommodation upgrades and personal expenses are not reimbursable.",
+    "source_id": "policy_032",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_033",
+    "document_type": "policy",
+    "text": "Expense Policy Section 33. Employees must submit expenses within 30 days of the transaction date.",
+    "source_id": "policy_033",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_034",
+    "document_type": "policy",
+    "text": "Expense Policy Section 34. Duplicate expense claims must be rejected and investigated.",
+    "source_id": "policy_034",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_035",
+    "document_type": "policy",
+    "text": "Expense Policy Section 35. Purchases must be assigned to the correct company cost centre.",
+    "source_id": "policy_035",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_036",
+    "document_type": "policy",
+    "text": "Expense Policy Section 36. Expenses must not exceed the remaining approved budget.",
+    "source_id": "policy_036",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_037",
+    "document_type": "policy",
+    "text": "Expense Policy Section 37. A manager may approve expenses only within their delegated authority.",
+    "source_id": "policy_037",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_038",
+    "document_type": "policy",
+    "text": "Expense Policy Section 38. Foreign currency expenses must include the original amount and currency.",
+    "source_id": "policy_038",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_039",
+    "document_type": "policy",
+    "text": "Expense Policy Section 39. VAT information must be present where required by local tax rules.",
+    "source_id": "policy_039",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_040",
+    "document_type": "policy",
+    "text": "Expense Policy Section 40. Expenses with missing supporting documentation may be rejected.",
+    "source_id": "policy_040",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_041",
+    "document_type": "policy",
+    "text": "Expense Policy Section 41. Business travel is reimbursable when it is necessary for approved company activities.",
+    "source_id": "policy_041",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_042",
+    "document_type": "policy",
+    "text": "Expense Policy Section 42. Taxi expenses are reimbursable when public transport is unavailable or impractical.",
+    "source_id": "policy_042",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_043",
+    "document_type": "policy",
+    "text": "Expense Policy Section 43. Hotel accommodation must be reasonable and must not exceed the approved nightly allowance.",
+    "source_id": "policy_043",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_044",
+    "document_type": "policy",
+    "text": "Expense Policy Section 44. Computer equipment purchases require manager approval before the purchase is made.",
+    "source_id": "policy_044",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_045",
+    "document_type": "policy",
+    "text": "Expense Policy Section 45. Business meals must have a clear business purpose and include the names of attendees.",
+    "source_id": "policy_045",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_046",
+    "document_type": "policy",
+    "text": "Expense Policy Section 46. Office supplies may be purchased within the approved cost centre budget.",
+    "source_id": "policy_046",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_047",
+    "document_type": "policy",
+    "text": "Expense Policy Section 47. Air travel should use economy class unless an exception is approved by management.",
+    "source_id": "policy_047",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_048",
+    "document_type": "policy",
+    "text": "Expense Policy Section 48. Receipts must include the vendor name, VAT number, transaction date and total amount.",
+    "source_id": "policy_048",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_049",
+    "document_type": "policy",
+    "text": "Expense Policy Section 49. Software subscriptions must be approved by the responsible department manager.",
+    "source_id": "policy_049",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_050",
+    "document_type": "policy",
+    "text": "Expense Policy Section 50. Rail travel is preferred over air travel for eligible short-distance business journeys.",
+    "source_id": "policy_050",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_051",
+    "document_type": "policy",
+    "text": "Expense Policy Section 51. Expenses above the employee's approval limit must be escalated to a higher approver.",
+    "source_id": "policy_051",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_052",
+    "document_type": "policy",
+    "text": "Expense Policy Section 52. Accommodation upgrades and personal expenses are not reimbursable.",
+    "source_id": "policy_052",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_053",
+    "document_type": "policy",
+    "text": "Expense Policy Section 53. Employees must submit expenses within 30 days of the transaction date.",
+    "source_id": "policy_053",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_054",
+    "document_type": "policy",
+    "text": "Expense Policy Section 54. Duplicate expense claims must be rejected and investigated.",
+    "source_id": "policy_054",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_055",
+    "document_type": "policy",
+    "text": "Expense Policy Section 55. Purchases must be assigned to the correct company cost centre.",
+    "source_id": "policy_055",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_056",
+    "document_type": "policy",
+    "text": "Expense Policy Section 56. Expenses must not exceed the remaining approved budget.",
+    "source_id": "policy_056",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_057",
+    "document_type": "policy",
+    "text": "Expense Policy Section 57. A manager may approve expenses only within their delegated authority.",
+    "source_id": "policy_057",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_058",
+    "document_type": "policy",
+    "text": "Expense Policy Section 58. Foreign currency expenses must include the original amount and currency.",
+    "source_id": "policy_058",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_059",
+    "document_type": "policy",
+    "text": "Expense Policy Section 59. VAT information must be present where required by local tax rules.",
+    "source_id": "policy_059",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_060",
+    "document_type": "policy",
+    "text": "Expense Policy Section 60. Expenses with missing supporting documentation may be rejected.",
+    "source_id": "policy_060",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_061",
+    "document_type": "policy",
+    "text": "Expense Policy Section 61. Business travel is reimbursable when it is necessary for approved company activities.",
+    "source_id": "policy_061",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_062",
+    "document_type": "policy",
+    "text": "Expense Policy Section 62. Taxi expenses are reimbursable when public transport is unavailable or impractical.",
+    "source_id": "policy_062",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_063",
+    "document_type": "policy",
+    "text": "Expense Policy Section 63. Hotel accommodation must be reasonable and must not exceed the approved nightly allowance.",
+    "source_id": "policy_063",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_064",
+    "document_type": "policy",
+    "text": "Expense Policy Section 64. Computer equipment purchases require manager approval before the purchase is made.",
+    "source_id": "policy_064",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_065",
+    "document_type": "policy",
+    "text": "Expense Policy Section 65. Business meals must have a clear business purpose and include the names of attendees.",
+    "source_id": "policy_065",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_066",
+    "document_type": "policy",
+    "text": "Expense Policy Section 66. Office supplies may be purchased within the approved cost centre budget.",
+    "source_id": "policy_066",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_067",
+    "document_type": "policy",
+    "text": "Expense Policy Section 67. Air travel should use economy class unless an exception is approved by management.",
+    "source_id": "policy_067",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_068",
+    "document_type": "policy",
+    "text": "Expense Policy Section 68. Receipts must include the vendor name, VAT number, transaction date and total amount.",
+    "source_id": "policy_068",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_069",
+    "document_type": "policy",
+    "text": "Expense Policy Section 69. Software subscriptions must be approved by the responsible department manager.",
+    "source_id": "policy_069",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_070",
+    "document_type": "policy",
+    "text": "Expense Policy Section 70. Rail travel is preferred over air travel for eligible short-distance business journeys.",
+    "source_id": "policy_070",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_071",
+    "document_type": "policy",
+    "text": "Expense Policy Section 71. Expenses above the employee's approval limit must be escalated to a higher approver.",
+    "source_id": "policy_071",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_072",
+    "document_type": "policy",
+    "text": "Expense Policy Section 72. Accommodation upgrades and personal expenses are not reimbursable.",
+    "source_id": "policy_072",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_073",
+    "document_type": "policy",
+    "text": "Expense Policy Section 73. Employees must submit expenses within 30 days of the transaction date.",
+    "source_id": "policy_073",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_074",
+    "document_type": "policy",
+    "text": "Expense Policy Section 74. Duplicate expense claims must be rejected and investigated.",
+    "source_id": "policy_074",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_075",
+    "document_type": "policy",
+    "text": "Expense Policy Section 75. Purchases must be assigned to the correct company cost centre.",
+    "source_id": "policy_075",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_076",
+    "document_type": "policy",
+    "text": "Expense Policy Section 76. Expenses must not exceed the remaining approved budget.",
+    "source_id": "policy_076",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_077",
+    "document_type": "policy",
+    "text": "Expense Policy Section 77. A manager may approve expenses only within their delegated authority.",
+    "source_id": "policy_077",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_078",
+    "document_type": "policy",
+    "text": "Expense Policy Section 78. Foreign currency expenses must include the original amount and currency.",
+    "source_id": "policy_078",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_079",
+    "document_type": "policy",
+    "text": "Expense Policy Section 79. VAT information must be present where required by local tax rules.",
+    "source_id": "policy_079",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_080",
+    "document_type": "policy",
+    "text": "Expense Policy Section 80. Expenses with missing supporting documentation may be rejected.",
+    "source_id": "policy_080",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_081",
+    "document_type": "policy",
+    "text": "Expense Policy Section 81. Business travel is reimbursable when it is necessary for approved company activities.",
+    "source_id": "policy_081",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_082",
+    "document_type": "policy",
+    "text": "Expense Policy Section 82. Taxi expenses are reimbursable when public transport is unavailable or impractical.",
+    "source_id": "policy_082",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_083",
+    "document_type": "policy",
+    "text": "Expense Policy Section 83. Hotel accommodation must be reasonable and must not exceed the approved nightly allowance.",
+    "source_id": "policy_083",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_084",
+    "document_type": "policy",
+    "text": "Expense Policy Section 84. Computer equipment purchases require manager approval before the purchase is made.",
+    "source_id": "policy_084",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_085",
+    "document_type": "policy",
+    "text": "Expense Policy Section 85. Business meals must have a clear business purpose and include the names of attendees.",
+    "source_id": "policy_085",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_086",
+    "document_type": "policy",
+    "text": "Expense Policy Section 86. Office supplies may be purchased within the approved cost centre budget.",
+    "source_id": "policy_086",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_087",
+    "document_type": "policy",
+    "text": "Expense Policy Section 87. Air travel should use economy class unless an exception is approved by management.",
+    "source_id": "policy_087",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_088",
+    "document_type": "policy",
+    "text": "Expense Policy Section 88. Receipts must include the vendor name, VAT number, transaction date and total amount.",
+    "source_id": "policy_088",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_089",
+    "document_type": "policy",
+    "text": "Expense Policy Section 89. Software subscriptions must be approved by the responsible department manager.",
+    "source_id": "policy_089",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_090",
+    "document_type": "policy",
+    "text": "Expense Policy Section 90. Rail travel is preferred over air travel for eligible short-distance business journeys.",
+    "source_id": "policy_090",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_091",
+    "document_type": "policy",
+    "text": "Expense Policy Section 91. Expenses above the employee's approval limit must be escalated to a higher approver.",
+    "source_id": "policy_091",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_092",
+    "document_type": "policy",
+    "text": "Expense Policy Section 92. Accommodation upgrades and personal expenses are not reimbursable.",
+    "source_id": "policy_092",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_093",
+    "document_type": "policy",
+    "text": "Expense Policy Section 93. Employees must submit expenses within 30 days of the transaction date.",
+    "source_id": "policy_093",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_094",
+    "document_type": "policy",
+    "text": "Expense Policy Section 94. Duplicate expense claims must be rejected and investigated.",
+    "source_id": "policy_094",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_095",
+    "document_type": "policy",
+    "text": "Expense Policy Section 95. Purchases must be assigned to the correct company cost centre.",
+    "source_id": "policy_095",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_096",
+    "document_type": "policy",
+    "text": "Expense Policy Section 96. Expenses must not exceed the remaining approved budget.",
+    "source_id": "policy_096",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_097",
+    "document_type": "policy",
+    "text": "Expense Policy Section 97. A manager may approve expenses only within their delegated authority.",
+    "source_id": "policy_097",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_098",
+    "document_type": "policy",
+    "text": "Expense Policy Section 98. Foreign currency expenses must include the original amount and currency.",
+    "source_id": "policy_098",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_099",
+    "document_type": "policy",
+    "text": "Expense Policy Section 99. VAT information must be present where required by local tax rules.",
+    "source_id": "policy_099",
+    "filter_group": "common"
+  },
+  {
+    "id": "policy_100",
+    "document_type": "policy",
+    "text": "Expense Policy Section 100. Expenses with missing supporting documentation may be rejected.",
+    "source_id": "policy_100",
+    "filter_group": "common"
+  }
+]

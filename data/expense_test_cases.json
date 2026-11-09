@@ -1,0 +1,32 @@
+
+[
+  {"id":"TC01","amount":100,"budget_remaining":1000,"budget_version_matches":true,"valid_approver":true,"requires_escalation":false,"expected":"approved"},
+  {"id":"TC02","amount":500,"budget_remaining":1000,"budget_version_matches":true,"valid_approver":true,"requires_escalation":false,"expected":"approved"},
+  {"id":"TC03","amount":1000,"budget_remaining":1000,"budget_version_matches":true,"valid_approver":true,"requires_escalation":false,"expected":"approved"},
+  {"id":"TC04","amount":250,"budget_remaining":500,"budget_version_matches":true,"valid_approver":true,"requires_escalation":false,"expected":"approved"},
+  {"id":"TC05","amount":50,"budget_remaining":50,"budget_version_matches":true,"valid_approver":true,"requires_escalation":false,"expected":"approved"},
+
+  {"id":"TC06","amount":1200,"budget_remaining":1000,"budget_version_matches":true,"valid_approver":true,"requires_escalation":false,"expected":"rejected"},
+  {"id":"TC07","amount":501,"budget_remaining":500,"budget_version_matches":true,"valid_approver":true,"requires_escalation":false,"expected":"rejected"},
+  {"id":"TC08","amount":100,"budget_remaining":1000,"budget_version_matches":false,"valid_approver":true,"requires_escalation":false,"expected":"rejected"},
+  {"id":"TC09","amount":400,"budget_remaining":1000,"budget_version_matches":false,"valid_approver":true,"requires_escalation":false,"expected":"rejected"},
+  {"id":"TC10","amount":200,"budget_remaining":1000,"budget_version_matches":true,"valid_approver":false,"requires_escalation":false,"expected":"rejected"},
+
+  {"id":"TC11","amount":700,"budget_remaining":1000,"budget_version_matches":true,"valid_approver":false,"requires_escalation":false,"expected":"rejected"},
+  {"id":"TC12","amount":1500,"budget_remaining":5000,"budget_version_matches":true,"valid_approver":true,"requires_escalation":true,"expected":"escalated"},
+  {"id":"TC13","amount":2500,"budget_remaining":5000,"budget_version_matches":true,"valid_approver":true,"requires_escalation":true,"expected":"escalated"},
+  {"id":"TC14","amount":4000,"budget_remaining":5000,"budget_version_matches":true,"valid_approver":true,"requires_escalation":true,"expected":"escalated"},
+  {"id":"TC15","amount":1100,"budget_remaining":2000,"budget_version_matches":true,"valid_approver":true,"requires_escalation":true,"expected":"escalated"},
+
+  {"id":"TC16","amount":999,"budget_remaining":1000,"budget_version_matches":true,"valid_approver":true,"requires_escalation":false,"expected":"approved"},
+  {"id":"TC17","amount":1001,"budget_remaining":1000,"budget_version_matches":true,"valid_approver":true,"requires_escalation":false,"expected":"rejected"},
+  {"id":"TC18","amount":1,"budget_remaining":1,"budget_version_matches":true,"valid_approver":true,"requires_escalation":false,"expected":"approved"},
+  {"id":"TC19","amount":200,"budget_remaining":0,"budget_version_matches":true,"valid_approver":true,"requires_escalation":false,"expected":"rejected"},
+  {"id":"TC20","amount":300,"budget_remaining":1000,"budget_version_matches":false,"valid_approver":false,"requires_escalation":false,"expected":"rejected"},
+
+  {"id":"TC21","amount":750,"budget_remaining":1000,"budget_version_matches":true,"valid_approver":true,"requires_escalation":false,"expected":"approved"},
+  {"id":"TC22","amount":800,"budget_remaining":1000,"budget_version_matches":true,"valid_approver":true,"requires_escalation":true,"expected":"escalated"},
+  {"id":"TC23","amount":900,"budget_remaining":500,"budget_version_matches":true,"valid_approver":true,"requires_escalation":true,"expected":"rejected"},
+  {"id":"TC24","amount":2000,"budget_remaining":5000,"budget_version_matches":false,"valid_approver":true,"requires_escalation":true,"expected":"rejected"},
+  {"id":"TC25","amount":600,"budget_remaining":1000,"budget_version_matches":true,"valid_approver":true,"requires_escalation":false,"expected":"approved"}
+]

@@ -1,0 +1,49 @@
+Metric	PostgreSQL HNSW	Qdrant
+Queries	20	20
+Filtered records	10	10
+Filter selectivity	4.88% (10/205)	4.88% (10/205)
+Average filtered ANN recall@10	1.0000	1.0000
+Average exact latency	9.906 ms	9.671 ms
+Average approximate latency	7.122 ms	8.604 ms
+
+Interpretation: Both systems returned all 10 expected filtered results for every query, so filtered ANN recall@10 was 100%.
+In this run, PostgreSQL's approximate search was about 1.48 ms faster than Qdrant's. 
+Qdrant's exact search was slightly faster than PostgreSQL's exact search.
+
+
+PostgreSQL rare records: 10
+Qdrant rare records: 10
+Query 01: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 02: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 03: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 04: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 05: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 06: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 07: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 08: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 09: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 10: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 11: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 12: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 13: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 14: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 15: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 16: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 17: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 18: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 19: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+Query 20: PostgreSQL recall=1.00, results=10, Qdrant recall=1.00, results=10
+
+--- Filtered benchmark summary ---
+Queries: 20
+Filter result count: PostgreSQL=10, Qdrant=10
+
+PostgreSQL:
+Average filtered ANN recall@10: 1.0000
+Average exact latency: 9.906 ms
+Average approximate latency: 7.122 ms
+
+Qdrant:
+Average filtered ANN recall@10: 1.0000
+Average exact latency: 9.671 ms
+Average approximate latency: 8.604 ms

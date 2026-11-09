@@ -1,0 +1,23 @@
+
+BENCHMARK_QUERIES = [
+    "Office supplies purchased for the company",
+    "Taxi ride to a business meeting",
+    "Hotel accommodation during business travel",
+    "Computer equipment purchased for employees",
+    "Business meal with a client",
+    "Printing documents for a company event",
+    "New furniture for the office",
+    "Monthly software subscription",
+    "Air travel for a business trip",
+    "Train ticket for business travel",
+    "Can employees claim taxi rides when public transport is unavailable?",
+    "What documentation must a valid receipt contain?",
+    "When does an expense need manager approval?",
+    "What happens when an expense exceeds the approval limit?",
+    "Can employees claim hotel upgrades?",
+    "How should foreign currency expenses be recorded?",
+    "What is the policy for duplicate expense claims?",
+    "Which expenses can be paid from the cost centre budget?",
+    "When must employees submit their expense claims?",
+    "Who can approve an expense under delegated authority?",
+]
