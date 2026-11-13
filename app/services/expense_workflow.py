@@ -1,13 +1,14 @@
-import os
+# import os
 
-import psycopg
-from dotenv import load_dotenv
+# import psycopg
+# from dotenv import load_dotenv
 
 from app.services.exceptions import BudgetConflict, WorkflowError
 from app.services.authorization_service import is_authorized_approver
 from app.services.escalation_service import find_responsible_approver
+from app.database.postgres import get_connection
 
-load_dotenv()
+# load_dotenv()
 
 
 # class WorkflowError(Exception):
@@ -31,7 +32,8 @@ def process_expense(
     employee directly responsible for its cost centre.
     """
 
-    with psycopg.connect(os.getenv("DATABASE_URL")) as conn:
+    # with psycopg.connect(os.getenv("DATABASE_URL")) as conn:
+    with get_connection() as conn:
         with conn.cursor() as cur:
 
             # 1. Lock the expense against concurrent decisions.

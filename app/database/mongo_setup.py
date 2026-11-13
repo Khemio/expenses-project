@@ -1,19 +1,8 @@
-
-# import os
-
-# from dotenv import load_dotenv
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure
 from app.config import get_settings
 
-# load_dotenv()
-
-
 def setup_receipts_collection():
-    # mongo_uri = os.getenv("MONGO_URI")
-
-    # if not mongo_uri:
-    #     raise ValueError("MONGO_URI is missing from .env")
     settings = get_settings()
     mongo_uri = settings.mongo_uri
 

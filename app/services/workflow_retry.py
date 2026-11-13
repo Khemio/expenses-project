@@ -1,19 +1,21 @@
-import os
+# import os
 
-import psycopg
-from dotenv import load_dotenv
+# import psycopg
+# from dotenv import load_dotenv
 
 from app.services.exceptions import BudgetConflict
 from app.services.expense_workflow import process_expense
+from app.database.postgres import get_connection
 
-load_dotenv()
+# load_dotenv()
 
 
 def get_current_budget_version(expense_id: int) -> int:
     """
     Read the current budget version for an expense.
     """
-    with psycopg.connect(os.getenv("DATABASE_URL")) as conn:
+    # with psycopg.connect(os.getenv("DATABASE_URL")) as conn:
+    with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """
