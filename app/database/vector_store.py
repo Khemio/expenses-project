@@ -1,16 +1,14 @@
 
 import json
-import os
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-
-import psycopg
-from dotenv import load_dotenv
-from qdrant_client import QdrantClient, models
+ 
+from qdrant_client import models
 from sentence_transformers import SentenceTransformer
 
-load_dotenv()
+from app.database.qdrant import get_qdrant_client
+from app.database.postgres import get_connection
 
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 COLLECTION_NAME = "expense_documents"
@@ -40,7 +38,7 @@ def generate_embeddings(documents):
 
 
 def setup_postgres():
-    with psycopg.connect(os.getenv("DATABASE_URL")) as conn:
+    with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
                 ALTER TABLE vector_documents
@@ -60,7 +58,7 @@ def setup_postgres():
 
 
 def setup_qdrant():
-    client = QdrantClient(url="http://localhost:6333")
+    client = get_qdrant_client()
 
     # Preserve an existing collection and its data.
     if not client.collection_exists(COLLECTION_NAME):
@@ -89,7 +87,7 @@ def setup_qdrant():
 
 
 def store_documents(documents, embeddings):
-    client = QdrantClient(url="http://localhost:6333")
+    client = get_qdrant_client()
     now = datetime.now(timezone.utc)
 
     postgres_rows = []
@@ -126,7 +124,7 @@ def store_documents(documents, embeddings):
             )
         )
 
-    with psycopg.connect(os.getenv("DATABASE_URL")) as conn:
+    with get_connection() as conn:
         with conn.cursor() as cur:
             cur.executemany("""
                 INSERT INTO vector_documents
