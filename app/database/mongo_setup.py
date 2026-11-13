@@ -19,64 +19,82 @@ def setup_receipts_collection():
         serverSelectionTimeoutMS=5000,
     )
 
-    db = client["expense_approval"]
-    collection_name = "receipts"
+    try:
+        db = client["expense_approval"]
+        collection_name = "receipts"
 
-    receipt_schema = {
-        "$jsonSchema": {
-            "bsonType": "object",
-            "required": [
-                "expense_id",
-                "vendor",
-                "country",
-                "vat_number",
-                "total",
-                "currency",
-                "receipt_date",
-            ],
-            "properties": {
-                "expense_id": {
-                    "bsonType": "int",
+        receipt_schema = {
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": [
+                    "expense_id",
+                    "vendor",
+                    "country",
+                    "vat_number",
+                    "total",
+                    "currency",
+                    "receipt_date",
+                ],
+                "properties": {
+                    "expense_id": {
+                        "bsonType": "int",
+                    },
+                    "vendor": {
+                        "bsonType": "string",
+                    },
+                    "country": {
+                        "bsonType": "string",
+                    },
+                    "vat_number": {
+                        "bsonType": "string",
+                    },
+                    "total": {
+                        "bsonType": ["double", "decimal"],
+                        "minimum": 0,
+                    },
+                    "currency": {
+                        "bsonType": "string",
+                    },
+                    "receipt_date": {
+                        "bsonType": "date",
+                    },
+                    "details": {
+                        "bsonType": "object",
+                    },
                 },
-                "vendor": {
-                    "bsonType": "string",
-                },
-                "country": {
-                    "bsonType": "string",
-                },
-                "vat_number": {
-                    "bsonType": "string",
-                },
-                "total": {
-                    "bsonType": ["double", "decimal"],
-                    "minimum": 0,
-                },
-                "currency": {
-                    "bsonType": "string",
-                },
-                "receipt_date": {
-                    "bsonType": "date",
-                },
-                "details": {
-                    "bsonType": "object",
-                },
-            },
+            }
         }
-    }
 
-    if collection_name in db.list_collection_names():
-        db.drop_collection(collection_name)
+        # if collection_name in db.list_collection_names():
+        #     db.drop_collection(collection_name)
 
-    db.create_collection(
-        collection_name,
-        validator=receipt_schema,
-        validationLevel="strict",
-        validationAction="error",
-    )
+        # db.create_collection(
+        #     collection_name,
+        #     validator=receipt_schema,
+        #     validationLevel="strict",
+        #     validationAction="error",
+        # )
 
-    print("MongoDB receipts collection created with JSON Schema validation.")
+        if collection_name not in db.list_collection_names():
+            db.create_collection(
+                collection_name,
+                validator=receipt_schema,
+                validationLevel="strict",
+                validationAction="error",
+            )
+        else:
+            db.command(
+                "collMod",
+                collection_name,
+                validator=receipt_schema,
+                validationLevel="strict",
+                validationAction="error",
+            )
 
-    client.close()
+        print("MongoDB receipts collection created with JSON Schema validation.")
+
+    finally:
+        client.close()
 
 
 if __name__ == "__main__":
