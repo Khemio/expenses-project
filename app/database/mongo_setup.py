@@ -1,18 +1,21 @@
 
-import os
+# import os
 
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure
+from app.config import get_settings
 
-load_dotenv()
+# load_dotenv()
 
 
 def setup_receipts_collection():
-    mongo_uri = os.getenv("MONGO_URI")
+    # mongo_uri = os.getenv("MONGO_URI")
 
-    if not mongo_uri:
-        raise ValueError("MONGO_URI is missing from .env")
+    # if not mongo_uri:
+    #     raise ValueError("MONGO_URI is missing from .env")
+    settings = get_settings()
+    mongo_uri = settings.mongo_uri
 
     client = MongoClient(
         mongo_uri,
@@ -65,16 +68,6 @@ def setup_receipts_collection():
             }
         }
 
-        # if collection_name in db.list_collection_names():
-        #     db.drop_collection(collection_name)
-
-        # db.create_collection(
-        #     collection_name,
-        #     validator=receipt_schema,
-        #     validationLevel="strict",
-        #     validationAction="error",
-        # )
-
         if collection_name not in db.list_collection_names():
             db.create_collection(
                 collection_name,
@@ -91,7 +84,7 @@ def setup_receipts_collection():
                 validationAction="error",
             )
 
-        print("MongoDB receipts collection created with JSON Schema validation.")
+        print("MongoDB receipts collection configured with JSON Schema validation.")
 
     finally:
         client.close()
