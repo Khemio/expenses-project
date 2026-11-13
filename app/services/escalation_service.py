@@ -1,13 +1,14 @@
 import os
 
 import psycopg
-from dotenv import load_dotenv
-from neo4j import GraphDatabase
+# from dotenv import load_dotenv
+# from neo4j import GraphDatabase
 
 from app.services.authorization_service import is_authorized_approver
 from app.services.exceptions import BudgetConflict
+from app.database.neo4j import get_driver
 
-load_dotenv()
+# load_dotenv()
 
 
 class EscalationError(Exception):
@@ -22,10 +23,10 @@ def find_responsible_approver(cost_centre_id: int):
     Returns the employee ID or None.
     """
 
-    driver = GraphDatabase.driver(
-        "bolt://localhost:7687",
-        auth=("neo4j", os.getenv("NEO4J_PASSWORD")),
-    )
+    # driver = GraphDatabase.driver(
+    #     "bolt://localhost:7687",
+    #     auth=("neo4j", os.getenv("NEO4J_PASSWORD")),
+    # )
 
     query = """
     MATCH (employee:Employee)-[:RESPONSIBLE_FOR]->(cc:CostCentre)
@@ -34,27 +35,45 @@ def find_responsible_approver(cost_centre_id: int):
     ORDER BY employee.employee_id
     """
 
-    try:
-        with driver.session() as session:
-            records = list(
-                session.run(
-                    query,
-                    cost_centre_id=cost_centre_id,
-                )
+    with get_driver().session() as session:
+        records = list(
+            session.run(
+                query,
+                cost_centre_id=cost_centre_id,
+            )
+        )
+
+        if not records:
+            return None
+
+        if len(records) != 1:
+            raise EscalationError(
+                "Expected exactly one responsible employee"
             )
 
-            if not records:
-                return None
+        return records[0]["employee_id"]
 
-            if len(records) != 1:
-                raise EscalationError(
-                    "Expected exactly one responsible employee"
-                )
+    # try:
+    #     with driver.session() as session:
+    #         records = list(
+    #             session.run(
+    #                 query,
+    #                 cost_centre_id=cost_centre_id,
+    #             )
+    #         )
 
-            return records[0]["employee_id"]
+    #         if not records:
+    #             return None
 
-    finally:
-        driver.close()
+    #         if len(records) != 1:
+    #             raise EscalationError(
+    #                 "Expected exactly one responsible employee"
+    #             )
+
+    #         return records[0]["employee_id"]
+
+    # finally:
+    #     driver.close()
 
 
 def escalate_expense(

@@ -1,11 +1,13 @@
-import os
+# import os
 from datetime import date
 from decimal import Decimal
 
-from dotenv import load_dotenv
-from neo4j import GraphDatabase
+from app.database.neo4j import get_driver
 
-load_dotenv()
+# from dotenv import load_dotenv
+# from neo4j import GraphDatabase
+
+# load_dotenv()
 
 
 def is_authorized_approver(
@@ -15,10 +17,10 @@ def is_authorized_approver(
     expense_date: date,
 ) -> bool:
 
-    driver = GraphDatabase.driver(
-        "bolt://localhost:7687",
-        auth=("neo4j", os.getenv("NEO4J_PASSWORD")),
-    )
+    # driver = GraphDatabase.driver(
+    #     "bolt://localhost:7687",
+    #     auth=("neo4j", os.getenv("NEO4J_PASSWORD")),
+    # )
 
     query = """
     MATCH (owner:Employee)-[:RESPONSIBLE_FOR]->(cc:CostCentre)
@@ -37,19 +39,32 @@ def is_authorized_approver(
     RETURN count(path) > 0 AS authorized
     """
 
-    try:
-        with driver.session() as session:
-            result = session.run(
-                query,
-                approver_id=approver_id,
-                cost_centre_id=cost_centre_id,
-                amount=float(Decimal(str(amount))),
-                expense_date=expense_date.isoformat(),
-            )
+    with get_driver().session() as session:
+        result = session.run(
+            query,
+            approver_id=approver_id,
+            cost_centre_id=cost_centre_id,
+            amount=float(Decimal(str(amount))),
+            expense_date=expense_date.isoformat(),
+        )
 
-            record = result.single()
+        record = result.single()
 
-            return bool(record and record["authorized"])
+        return bool(record and record["authorized"])
 
-    finally:
-        driver.close()
+    # try:
+    #     with driver.session() as session:
+    #         result = session.run(
+    #             query,
+    #             approver_id=approver_id,
+    #             cost_centre_id=cost_centre_id,
+    #             amount=float(Decimal(str(amount))),
+    #             expense_date=expense_date.isoformat(),
+    #         )
+
+    #         record = result.single()
+
+    #         return bool(record and record["authorized"])
+
+    # finally:
+    #     driver.close()
