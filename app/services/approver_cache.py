@@ -1,24 +1,18 @@
 
-
 import json
-import os
 from datetime import datetime, timezone
 
-import redis
-from dotenv import load_dotenv
+from app.database.redis import get_redis_client
 
 
-load_dotenv()
-
-redis_client = redis.Redis(
-    host="localhost",
-    port=6379,
-    password=os.getenv("REDIS_PASSWORD"),
-    decode_responses=True,
-)
+CACHE_TTL_SECONDS = 300
 
 
-def cache_approver_chain(employee_id, approver_chain, source_id):
+def cache_approver_chain(
+    employee_id: int,
+    approver_chain: list[int],
+    source_id: str,
+) -> None:
     key = f"approver_chain:{employee_id}"
 
     cache_data = {
@@ -27,16 +21,16 @@ def cache_approver_chain(employee_id, approver_chain, source_id):
         "refreshed_at": datetime.now(timezone.utc).isoformat(),
     }
 
-    redis_client.set(
+    get_redis_client().set(
         key,
         json.dumps(cache_data),
-        ex=300,
+        ex=CACHE_TTL_SECONDS,
     )
 
 
-def get_cached_approver_chain(employee_id):
+def get_cached_approver_chain(employee_id: int):
     key = f"approver_chain:{employee_id}"
-    cached = redis_client.get(key)
+    cached = get_redis_client().get(key)
 
     if cached is None:
         return None
@@ -44,6 +38,6 @@ def get_cached_approver_chain(employee_id):
     return json.loads(cached)
 
 
-def invalidate_approver_chain(employee_id):
+def invalidate_approver_chain(employee_id: int) -> int:
     key = f"approver_chain:{employee_id}"
-    redis_client.delete(key)
+    return get_redis_client().delete(key)
