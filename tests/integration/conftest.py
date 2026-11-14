@@ -1,4 +1,7 @@
+import os
 
+from psycopg.conninfo import conninfo_to_dict
+from app.config import get_settings
 from datetime import date
 from uuid import uuid4
 
@@ -6,6 +9,38 @@ import pytest
 
 from app.database.neo4j import get_driver
 from app.database.postgres import get_connection
+
+
+
+@pytest.fixture(autouse=True)
+def require_test_databases():
+    """Refuse integration tests against development databases."""
+
+    if os.getenv("EXPENSE_TEST_MODE") != "1":
+        pytest.fail(
+            "Integration tests must use the dedicated test runner."
+        )
+
+    settings = get_settings()
+    pg = conninfo_to_dict(settings.database_url)
+
+    expected_pg = {
+        "host": "127.0.0.1",
+        "port": "55432",
+        "dbname": "expense_approval_test",
+        "user": "expense_test",
+    }
+
+    for key, expected in expected_pg.items():
+        if str(pg.get(key)) != expected:
+            pytest.fail(
+                f"Unsafe PostgreSQL test configuration: {key}"
+            )
+
+    if settings.neo4j_uri != "bolt://127.0.0.1:57687":
+        pytest.fail(
+            "Unsafe Neo4j test configuration"
+        )
 
 
 @pytest.fixture
