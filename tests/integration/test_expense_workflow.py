@@ -224,3 +224,106 @@ def test_stale_budget_version_blocks_approval(expense_scenario):
     assert expense_status == "pending"
     assert decision_count == 0
 
+
+
+@pytest.mark.integration
+def test_escalation_and_assigned_approver(expense_scenario):
+    expense_id = expense_scenario["expense_id"]
+    owner_id = expense_scenario["employee_id"]
+    unauthorized_id = expense_scenario[
+        "unauthorized_employee_id"
+    ]
+    budget_id = expense_scenario["budget_id"]
+    version = expense_scenario["version"]
+
+    # Bob has no authority; the expense must escalate.
+    result = process_expense(
+        expense_id=expense_id,
+        approver_id=unauthorized_id,
+        expected_version=version,
+    )
+
+    assert result["status"] == "escalated"
+    assert result["previous_status"] == "pending"
+
+    with get_connection() as conn:
+        budget = conn.execute(
+            """
+            SELECT remaining, version
+            FROM budgets
+            WHERE id = %s
+            """,
+            (budget_id,),
+        ).fetchone()
+
+        decisions = conn.execute(
+            """
+            SELECT decision, approver_id, target_approver_id
+            FROM decisions
+            WHERE expense_id = %s
+            ORDER BY id
+            """,
+            (expense_id,),
+        ).fetchall()
+
+    assert budget == (Decimal("2000"), version)
+    assert decisions == [
+        ("escalated", unauthorized_id, owner_id),
+    ]
+
+    # Bob cannot complete an escalation assigned to Alice.
+    with pytest.raises(WorkflowError):
+        process_expense(
+            expense_id=expense_id,
+            approver_id=unauthorized_id,
+            expected_version=version,
+        )
+
+    # Alice can complete the escalation.
+    result = process_expense(
+        expense_id=expense_id,
+        approver_id=owner_id,
+        expected_version=version,
+    )
+
+    assert result["status"] == "approved"
+    assert result["previous_status"] == "escalated"
+
+    with get_connection() as conn:
+        budget = conn.execute(
+            """
+            SELECT remaining, version
+            FROM budgets
+            WHERE id = %s
+            """,
+            (budget_id,),
+        ).fetchone()
+
+        status = conn.execute(
+            """
+            SELECT status
+            FROM expenses
+            WHERE id = %s
+            """,
+            (expense_id,),
+        ).fetchone()[0]
+
+        decisions = conn.execute(
+            """
+            SELECT decision, approver_id, target_approver_id
+            FROM decisions
+            WHERE expense_id = %s
+            ORDER BY id
+            """,
+            (expense_id,),
+        ).fetchall()
+
+    assert budget == (
+        Decimal("1300"),
+        version + 1,
+    )
+    assert status == "approved"
+    assert decisions == [
+        ("escalated", unauthorized_id, owner_id),
+        ("approved", owner_id, None),
+    ]

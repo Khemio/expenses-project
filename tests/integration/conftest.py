@@ -19,6 +19,7 @@ def expense_scenario():
     """
     run_id = uuid4().hex
 
+    unauthorized_employee_id = None
     cost_centre_id = None
     employee_id = None
     budget_id = None
@@ -53,6 +54,22 @@ def expense_scenario():
                     ),
                 )
                 employee_id = cur.fetchone()[0]
+
+                cur.execute(
+                    """
+                    INSERT INTO employees (
+                        name, email, cost_centre_id
+                    )
+                    VALUES (%s, %s, %s)
+                    RETURNING id
+                    """,
+                    (
+                        "Unauthorized Test Employee",
+                        f"pytest-unauthorized-{run_id}@example.test",
+                        cost_centre_id,
+                    ),
+                )
+                unauthorized_employee_id = cur.fetchone()[0]
 
                 cur.execute(
                     """
@@ -106,7 +123,14 @@ def expense_scenario():
                 })
 
                 CREATE (e)-[:RESPONSIBLE_FOR]->(cc)
+
+                CREATE (:Employee {
+                    employee_id: $unauthorized_employee_id,
+                    name: 'Unauthorized Test Employee',
+                    test_run_id: $run_id
+                })
                 """,
+                unauthorized_employee_id=unauthorized_employee_id,
                 employee_id=employee_id,
                 cost_centre_id=cost_centre_id,
                 centre_name=f"pytest-{run_id}",
@@ -114,6 +138,7 @@ def expense_scenario():
             ).consume()
 
         yield {
+            "unauthorized_employee_id": unauthorized_employee_id,
             "expense_id": expense_id,
             "employee_id": employee_id,
             "budget_id": budget_id,
@@ -121,9 +146,10 @@ def expense_scenario():
             "version": version,
         }
 
+
     finally:
         try:
-            # Remove only nodes created by this test.
+            # Remove Neo4j nodes belonging to this test.
             with get_driver().session() as session:
                 session.run(
                     """
@@ -134,10 +160,12 @@ def expense_scenario():
                 ).consume()
 
         finally:
-            # Remove relational records in dependency order.
+            # Remove PostgreSQL records in dependency order.
             if cost_centre_id is not None:
                 with get_connection() as conn:
                     with conn.cursor() as cur:
+
+                        # 1. Decisions reference expenses and employees.
                         if expense_id is not None:
                             cur.execute(
                                 """
@@ -147,6 +175,7 @@ def expense_scenario():
                                 (expense_id,),
                             )
 
+                            # 2. Remove the expense.
                             cur.execute(
                                 """
                                 DELETE FROM expenses
@@ -155,19 +184,41 @@ def expense_scenario():
                                 (expense_id,),
                             )
 
+                        # 3. Remove the budget.
                         if budget_id is not None:
                             cur.execute(
-                                "DELETE FROM budgets WHERE id = %s",
+                                """
+                                DELETE FROM budgets
+                                WHERE id = %s
+                                """,
                                 (budget_id,),
+                            )
+
+                        # 4. Remove both employees.
+                        if unauthorized_employee_id is not None:
+                            cur.execute(
+                                """
+                                DELETE FROM employees
+                                WHERE id = %s
+                                """,
+                                (unauthorized_employee_id,),
                             )
 
                         if employee_id is not None:
                             cur.execute(
-                                "DELETE FROM employees WHERE id = %s",
+                                """
+                                DELETE FROM employees
+                                WHERE id = %s
+                                """,
                                 (employee_id,),
                             )
 
+                        # 5. Remove the cost centre last.
                         cur.execute(
-                            "DELETE FROM cost_centres WHERE id = %s",
+                            """
+                            DELETE FROM cost_centres
+                            WHERE id = %s
+                            """,
                             (cost_centre_id,),
                         )
+
