@@ -9,6 +9,7 @@ import pytest
 
 from app.database.neo4j import get_driver
 from app.database.postgres import get_connection
+from tests.integration.factories import ExpenseFactory
 
 
 
@@ -59,7 +60,7 @@ def expense_scenario():
     employee_id = None
     budget_id = None
     expense_id = None
-    created_expense_ids = []
+    expense_factory = None
 
     try:
         # Create PostgreSQL records.
@@ -141,7 +142,14 @@ def expense_scenario():
                     ),
                 )
                 expense_id = cur.fetchone()[0]
-                created_expense_ids.append(expense_id)
+                # created_expense_ids.append(expense_id)
+                expense_factory = ExpenseFactory(
+                    employee_id=employee_id,
+                    cost_centre_id=cost_centre_id,
+                    budget_id=budget_id,
+                )
+
+                expense_factory.track(expense_id)
 
         # Create matching Neo4j authorization data.
         with get_driver().session() as session:
@@ -175,42 +183,42 @@ def expense_scenario():
             ).consume()
 
 
-        def create_expense(
-            amount=700,
-            description="Additional integration test expense",
-            expense_date=date(2026, 11, 9),
-        ):
-            """Create an expense using the scenario's existing budget."""
+        # def create_expense(
+        #     amount=700,
+        #     description="Additional integration test expense",
+        #     expense_date=date(2026, 11, 9),
+        # ):
+        #     """Create an expense using the scenario's existing budget."""
 
-            with get_connection() as conn:
-                with conn.cursor() as cur:
-                    cur.execute(
-                        """
-                        INSERT INTO expenses (
-                            employee_id,
-                            cost_centre_id,
-                            budget_id,
-                            amount,
-                            description,
-                            expense_date
-                        )
-                        VALUES (%s, %s, %s, %s, %s, %s)
-                        RETURNING id
-                        """,
-                        (
-                            employee_id,
-                            cost_centre_id,
-                            budget_id,
-                            amount,
-                            description,
-                            expense_date,
-                        ),
-                    )
+        #     with get_connection() as conn:
+        #         with conn.cursor() as cur:
+        #             cur.execute(
+        #                 """
+        #                 INSERT INTO expenses (
+        #                     employee_id,
+        #                     cost_centre_id,
+        #                     budget_id,
+        #                     amount,
+        #                     description,
+        #                     expense_date
+        #                 )
+        #                 VALUES (%s, %s, %s, %s, %s, %s)
+        #                 RETURNING id
+        #                 """,
+        #                 (
+        #                     employee_id,
+        #                     cost_centre_id,
+        #                     budget_id,
+        #                     amount,
+        #                     description,
+        #                     expense_date,
+        #                 ),
+        #             )
 
-                    new_expense_id = cur.fetchone()[0]
-                    created_expense_ids.append(new_expense_id)
+        #             new_expense_id = cur.fetchone()[0]
+        #             created_expense_ids.append(new_expense_id)
 
-            return new_expense_id
+        #     return new_expense_id
 
 
         yield {
@@ -220,7 +228,8 @@ def expense_scenario():
             "budget_id": budget_id,
             "cost_centre_id": cost_centre_id,
             "version": version,
-            "create_expense": create_expense,
+            # "create_expense": create_expense,
+            "create_expense": expense_factory.create,
         }
 
 
@@ -241,26 +250,28 @@ def expense_scenario():
             if cost_centre_id is not None:
                 with get_connection() as conn:
                     with conn.cursor() as cur:
+                        if expense_factory is not None:
+                            expense_factory.cleanup(cur)
 
                         # 1. Decisions reference expenses and employees.
-                        if created_expense_ids:
-                            cur.execute(
-                                """
-                                DELETE FROM decisions
-                                WHERE expense_id = ANY(%s)
-                                """,
-                                (created_expense_ids,),
-                            )
+                        # if created_expense_ids:
+                        #     cur.execute(
+                        #         """
+                        #         DELETE FROM decisions
+                        #         WHERE expense_id = ANY(%s)
+                        #         """,
+                        #         (created_expense_ids,),
+                        #     )
 
-                            cur.execute(
-                                """
-                                DELETE FROM expenses
-                                WHERE id = ANY(%s)
-                                """,
-                                (created_expense_ids,),
-                            )
+                        #     cur.execute(
+                        #         """
+                        #         DELETE FROM expenses
+                        #         WHERE id = ANY(%s)
+                        #         """,
+                        #         (created_expense_ids,),
+                        #     )
 
-                        # 3. Remove the budget.
+                        # # 3. Remove the budget.
                         if budget_id is not None:
                             cur.execute(
                                 """
@@ -270,7 +281,7 @@ def expense_scenario():
                                 (budget_id,),
                             )
 
-                        # 4. Remove both employees.
+                        # # 4. Remove both employees.
                         if unauthorized_employee_id is not None:
                             cur.execute(
                                 """
@@ -289,7 +300,7 @@ def expense_scenario():
                                 (employee_id,),
                             )
 
-                        # 5. Remove the cost centre last.
+                        # # 5. Remove the cost centre last.
                         cur.execute(
                             """
                             DELETE FROM cost_centres
