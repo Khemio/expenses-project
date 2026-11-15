@@ -171,3 +171,64 @@ def test_repeated_storage_updates_existing_document(
     assert len(point.vector) == 384
     assert point.vector[0] == pytest.approx(0.0)
     assert point.vector[1] == pytest.approx(1.0)
+
+
+import app.database.vector_store as vector_store
+
+
+@pytest.mark.integration
+def test_qdrant_failure_leaves_postgres_document(
+    vector_document,
+    monkeypatch,
+):
+    document, vector, point_id = vector_document
+
+    class FailingQdrantClient:
+        def upsert(self, *args, **kwargs):
+            raise RuntimeError(
+                "Simulated Qdrant write failure"
+            )
+
+    # Replace only the Qdrant client used by
+    # store_documents(), not the actual database
+    # or the fixture's cleanup mechanism.
+    monkeypatch.setattr(
+        vector_store,
+        "get_qdrant_client",
+        lambda: FailingQdrantClient(),
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match="Simulated Qdrant write failure",
+    ):
+        store_documents(
+            documents=[document],
+            embeddings=[vector],
+        )
+
+    # PostgreSQL committed before Qdrant failed.
+    with get_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT content
+            FROM vector_documents
+            WHERE id = %s
+            """,
+            (document["id"],),
+        ).fetchone()
+
+    assert row is not None
+    assert row[0] == document["text"]
+
+    # Check the real Qdrant instance.
+    # Importing through the database module avoids
+    # the monkeypatched vector_store reference.
+    from app.database.qdrant import get_qdrant_client
+
+    points = get_qdrant_client().retrieve(
+        collection_name=COLLECTION_NAME,
+        ids=[point_id],
+    )
+
+    assert points == []
