@@ -9,6 +9,7 @@ import redis
 from pathlib import Path
 from neo4j import GraphDatabase
 from pymongo import MongoClient
+from qdrant_client import QdrantClient
 
 
 
@@ -54,6 +55,9 @@ def verify_test_cleanup() -> bool:
                 ("pytest-%",),
             )
             postgres_remaining = cur.fetchone()[0]
+
+            cur.execute("SELECT COUNT(*) FROM vector_documents")
+            postgres_vectors_remaining = cur.fetchone()[0]
 
     # Verify Neo4j cleanup.
     driver = GraphDatabase.driver(
@@ -104,18 +108,43 @@ def verify_test_cleanup() -> bool:
     finally:
         redis_client.close()
 
+    
+    qdrant_client = QdrantClient(
+        url="http://127.0.0.1:56333",
+        timeout=10,
+    )
+
+    try:
+        collection_name = "expense_documents"
+
+        if qdrant_client.collection_exists(collection_name):
+            qdrant_remaining = qdrant_client.count(
+                collection_name=collection_name,
+                exact=True,
+            ).count
+        else:
+            qdrant_remaining = 0
+
+    finally:
+        qdrant_client.close()
+
+
 
     print("\n--- Integration test cleanup verification ---")
     print("PostgreSQL test cost centres:", postgres_remaining)
     print("Neo4j tagged test nodes:", neo4j_remaining)
     print("MongoDB receipt documents:", mongodb_remaining)
     print("Redis keys:", redis_remaining)
+    print("Qdrant vector points:", qdrant_remaining)
+    print("Postgres vector points:", postgres_vectors_remaining)
 
     if any((
         postgres_remaining != 0,
         neo4j_remaining != 0,
         mongodb_remaining != 0,
         redis_remaining != 0,
+        qdrant_remaining != 0,
+        postgres_vectors_remaining != 0,
     )):
         print("FAILED: Integration tests left records behind.")
         return False
@@ -160,6 +189,8 @@ def main():
         "pytest",
         "-o",
         "addopts=",
+        "-m",
+        "integration",
         *(sys.argv[1:] or ["tests/integration"]),
     ]
 
