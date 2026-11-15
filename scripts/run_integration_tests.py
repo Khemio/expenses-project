@@ -21,6 +21,103 @@ TEST_DATABASE_URL = (
 )
 
 
+
+def verify_test_environment() -> None:
+    """Verify isolated database connections before any writes."""
+
+    print("\n--- Preflight database verification ---")
+
+    # PostgreSQL: verify the actual connected database and role.
+    with psycopg.connect(TEST_DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT current_database(), current_user"
+            )
+            database_name, username = cur.fetchone()
+
+    if (
+        database_name != "expense_approval_test"
+        or username != "expense_test"
+    ):
+        raise RuntimeError(
+            "PostgreSQL is not the expected test database"
+        )
+
+    print("PostgreSQL identity verified.")
+
+    # Neo4j: verify test credentials and connectivity.
+    driver = GraphDatabase.driver(
+        "bolt://127.0.0.1:57687",
+        auth=("neo4j", "local_test_password"),
+    )
+
+    try:
+        driver.verify_connectivity()
+    finally:
+        driver.close()
+
+    print("Neo4j test connection verified.")
+
+    # MongoDB: verify authentication and connectivity.
+    mongo = MongoClient(
+        "mongodb://expense_test:local_test_password"
+        "@127.0.0.1:57017/?authSource=admin",
+        serverSelectionTimeoutMS=5000,
+    )
+
+    try:
+        mongo.admin.command("ping")
+
+        status = mongo.admin.command("connectionStatus")
+        users = status.get("authInfo", {}).get(
+            "authenticatedUsers", []
+        )
+
+        if not any(
+            user.get("user") == "expense_test"
+            and user.get("db") == "admin"
+            for user in users
+        ):
+            raise RuntimeError(
+                "Unexpected MongoDB authenticated user"
+            )
+    finally:
+        mongo.close()
+
+    print("MongoDB authentication verified.")
+
+    # Redis: verify the isolated instance is reachable.
+    cache = redis.Redis(
+        host="127.0.0.1",
+        port=56379,
+        password="local_test_password",
+        socket_connect_timeout=5,
+        socket_timeout=5,
+    )
+
+    try:
+        if not cache.ping():
+            raise RuntimeError("Redis test connection failed")
+    finally:
+        cache.close()
+
+    print("Redis test connection verified.")
+
+    # Qdrant: verify connectivity without changing collections.
+    qdrant = QdrantClient(
+        url="http://127.0.0.1:56333",
+        timeout=10,
+    )
+
+    try:
+        qdrant.get_collections()
+    finally:
+        qdrant.close()
+
+    print("Qdrant test connection verified.")
+    print("SUCCESS: Test environment preflight passed.\n")
+
+
 def initialize_database():
     """Initialize the isolated PostgreSQL schema if needed."""
 
@@ -175,13 +272,17 @@ def main():
         "REDIS_PORT": "56379",
         "REDIS_PASSWORD": "local_test_password",
 
-        # "QDRANT_URL": "http://127.0.0.1:6333",
         "QDRANT_URL": "http://127.0.0.1:56333",
     })
 
     # Initialize under the same explicit test configuration.
     # The URL is fixed and does not use the development .env.
-    initialize_database()
+    try:
+        verify_test_environment()
+        initialize_database()
+    except Exception as error:
+        print(f"FAILED: Test environment preparation: {error}")
+        return 1
 
     command = [
         sys.executable,

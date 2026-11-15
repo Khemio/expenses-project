@@ -5,6 +5,7 @@ from app.config import get_settings
 from datetime import date
 from uuid import uuid4
 from urllib.parse import urlsplit
+from urllib.parse import parse_qs
 
 import pytest
 
@@ -52,14 +53,19 @@ def require_test_databases():
         or mongo.hostname != "127.0.0.1"
         or mongo.port != 57017
         or mongo.username != "expense_test"
+        or parse_qs(mongo.query).get("authSource") != ["admin"]
     ):
         pytest.fail("Unsafe MongoDB test configuration")
 
     if (
         settings.redis_host != "127.0.0.1"
         or settings.redis_port != 56379
+        or settings.redis_password != "local_test_password"
     ):
         pytest.fail("Unsafe Redis test configuration")
+
+    if settings.qdrant_url != "http://127.0.0.1:56333":
+        pytest.fail("Unsafe Qdrant test configuration")
 
 
 
@@ -161,7 +167,6 @@ def expense_scenario():
                     ),
                 )
                 expense_id = cur.fetchone()[0]
-                # created_expense_ids.append(expense_id)
                 expense_factory = ExpenseFactory(
                     employee_id=employee_id,
                     cost_centre_id=cost_centre_id,
@@ -233,7 +238,6 @@ def expense_scenario():
                         if expense_factory is not None:
                             expense_factory.cleanup(cur)
 
-                        # # 3. Remove the budget.
                         if budget_id is not None:
                             cur.execute(
                                 """
@@ -243,7 +247,6 @@ def expense_scenario():
                                 (budget_id,),
                             )
 
-                        # # 4. Remove both employees.
                         if unauthorized_employee_id is not None:
                             cur.execute(
                                 """
@@ -262,7 +265,6 @@ def expense_scenario():
                                 (employee_id,),
                             )
 
-                        # # 5. Remove the cost centre last.
                         cur.execute(
                             """
                             DELETE FROM cost_centres
