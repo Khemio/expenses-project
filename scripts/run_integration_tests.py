@@ -3,6 +3,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from neo4j import GraphDatabase
 
 import psycopg
 
@@ -31,6 +32,57 @@ def initialize_database():
 
             schema = schema_path.read_text(encoding="utf-8")
             cur.execute(schema)
+
+        
+
+def verify_test_cleanup() -> bool:
+    """Check that integration tests left no scenario records."""
+
+    # Verify PostgreSQL cleanup.
+    with psycopg.connect(TEST_DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT COUNT(*)
+                FROM cost_centres
+                WHERE name LIKE %s
+                """,
+                ("pytest-%",),
+            )
+            postgres_remaining = cur.fetchone()[0]
+
+    # Verify Neo4j cleanup.
+    driver = GraphDatabase.driver(
+        "bolt://127.0.0.1:57687",
+        auth=("neo4j", "local_test_password"),
+    )
+
+    try:
+        with driver.session() as session:
+            record = session.run(
+                """
+                MATCH (n)
+                WHERE n.test_run_id IS NOT NULL
+                RETURN count(n) AS remaining
+                """
+            ).single()
+
+            neo4j_remaining = record["remaining"]
+
+    finally:
+        driver.close()
+
+    print("\n--- Integration test cleanup verification ---")
+    print("PostgreSQL test cost centres:", postgres_remaining)
+    print("Neo4j tagged test nodes:", neo4j_remaining)
+
+    if postgres_remaining != 0 or neo4j_remaining != 0:
+        print("FAILED: Integration tests left records behind.")
+        return False
+
+    print("SUCCESS: No test scenario records remain.")
+    return True
+
 
 
 def main():
@@ -64,12 +116,31 @@ def main():
         *sys.argv[1:],
     ]
 
-    return subprocess.run(
+    # return subprocess.run(
+    #     command,
+    #     cwd=ROOT,
+    #     env=env,
+    #     check=False,
+    # ).returncode
+    result = subprocess.run(
         command,
         cwd=ROOT,
         env=env,
         check=False,
-    ).returncode
+    )
+
+    if result.returncode != 0:
+        print("Integration tests failed.")
+        return result.returncode
+
+    try:
+        if not verify_test_cleanup():
+            return 1
+    except Exception as error:
+        print(f"Cleanup verification failed: {error}")
+        return 1
+
+    return 0
 
 
 if __name__ == "__main__":
