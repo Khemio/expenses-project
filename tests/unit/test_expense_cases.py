@@ -44,3 +44,24 @@ def test_expense_case_dataset_is_valid(expense_cases):
         assert isinstance(
             case["requires_escalation"], bool
         )
+
+
+@pytest.mark.parametrize(
+    "case",
+    json.loads(DATA_FILE.read_text(encoding="utf-8")),
+    ids=lambda case: case["id"],
+)
+def test_evaluate_expense_against_labeled_case(case):
+    actual = evaluate_expense(
+        amount=case["amount"],
+        budget_remaining=case["budget_remaining"],
+        budget_version_matches=case[
+            "budget_version_matches"
+        ],
+        valid_approver=case["valid_approver"],
+        requires_escalation=case[
+            "requires_escalation"
+        ],
+    )
+
+    assert actual == case["expected"]
