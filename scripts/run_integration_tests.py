@@ -97,8 +97,17 @@ def main():
 
         # Required by the current centralized Settings class.
         # These services are not used by this test suite yet.
-        "MONGO_URI": "mongodb://127.0.0.1:27017",
-        "REDIS_PASSWORD": "unused_for_these_tests",
+        
+        # "MONGO_URI": "mongodb://127.0.0.1:27017",
+        # "REDIS_PASSWORD": "unused_for_these_tests",
+        "MONGO_URI": (
+            "mongodb://expense_test:local_test_password"
+            "@127.0.0.1:57017/?authSource=admin"
+        ),
+        "REDIS_HOST": "127.0.0.1",
+        "REDIS_PORT": "56379",
+        "REDIS_PASSWORD": "local_test_password",
+
         "QDRANT_URL": "http://127.0.0.1:6333",
     })
 

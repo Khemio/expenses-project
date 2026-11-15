@@ -4,6 +4,7 @@ from psycopg.conninfo import conninfo_to_dict
 from app.config import get_settings
 from datetime import date
 from uuid import uuid4
+from urllib.parse import urlsplit
 
 import pytest
 
@@ -42,6 +43,24 @@ def require_test_databases():
         pytest.fail(
             "Unsafe Neo4j test configuration"
         )
+
+    
+    mongo = urlsplit(settings.mongo_uri)
+
+    if (
+        mongo.scheme != "mongodb"
+        or mongo.hostname != "127.0.0.1"
+        or mongo.port != 57017
+        or mongo.username != "expense_test"
+    ):
+        pytest.fail("Unsafe MongoDB test configuration")
+
+    if (
+        settings.redis_host != "127.0.0.1"
+        or settings.redis_port != 56379
+    ):
+        pytest.fail("Unsafe Redis test configuration")
+
 
 
 @pytest.fixture
@@ -183,44 +202,6 @@ def expense_scenario():
             ).consume()
 
 
-        # def create_expense(
-        #     amount=700,
-        #     description="Additional integration test expense",
-        #     expense_date=date(2026, 11, 9),
-        # ):
-        #     """Create an expense using the scenario's existing budget."""
-
-        #     with get_connection() as conn:
-        #         with conn.cursor() as cur:
-        #             cur.execute(
-        #                 """
-        #                 INSERT INTO expenses (
-        #                     employee_id,
-        #                     cost_centre_id,
-        #                     budget_id,
-        #                     amount,
-        #                     description,
-        #                     expense_date
-        #                 )
-        #                 VALUES (%s, %s, %s, %s, %s, %s)
-        #                 RETURNING id
-        #                 """,
-        #                 (
-        #                     employee_id,
-        #                     cost_centre_id,
-        #                     budget_id,
-        #                     amount,
-        #                     description,
-        #                     expense_date,
-        #                 ),
-        #             )
-
-        #             new_expense_id = cur.fetchone()[0]
-        #             created_expense_ids.append(new_expense_id)
-
-        #     return new_expense_id
-
-
         yield {
             "expense_id": expense_id,
             "employee_id": employee_id,
@@ -228,7 +209,6 @@ def expense_scenario():
             "budget_id": budget_id,
             "cost_centre_id": cost_centre_id,
             "version": version,
-            # "create_expense": create_expense,
             "create_expense": expense_factory.create,
         }
 

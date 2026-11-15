@@ -36,7 +36,45 @@ services:
       interval: 10s
       timeout: 10s
       retries: 10
+    
+  mongodb:
+    image: mongo:7.0.16
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: expense_test
+      MONGO_INITDB_ROOT_PASSWORD: local_test_password
+    ports:
+      - "127.0.0.1:57017:27017"
+    volumes:
+      - test_mongodb_data:/data/db
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mongosh --quiet -u expense_test -p local_test_password --authenticationDatabase admin --eval "db.adminCommand('ping').ok"
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+  redis:
+    image: redis:7.4.2
+    command:
+      - redis-server
+      - --requirepass
+      - local_test_password
+    ports:
+      - "127.0.0.1:56379:6379"
+    volumes:
+      - test_redis_data:/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - redis-cli -a local_test_password --no-auth-warning ping
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
 
 volumes:
   test_postgres_data:
   test_neo4j_data:
+  test_mongodb_data:
+  test_redis_data:
