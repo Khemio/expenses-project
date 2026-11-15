@@ -71,6 +71,21 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+  
+  qdrant:
+    image: qdrant/qdrant:v1.13.3
+    ports:
+      - "127.0.0.1:56333:6333"
+    volumes:
+      - test_qdrant_data:/qdrant/storage
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "bash -c '</dev/tcp/127.0.0.1/6333'"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
 
 
 volumes:
@@ -78,3 +93,4 @@ volumes:
   test_neo4j_data:
   test_mongodb_data:
   test_redis_data:
+  test_qdrant_data:
