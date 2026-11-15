@@ -65,3 +65,31 @@ def test_evaluate_expense_against_labeled_case(case):
     )
 
     assert actual == case["expected"]
+
+
+
+@pytest.mark.parametrize(
+    "amount,remaining,expected",
+    [
+        (0, 100, "rejected"),
+        (-10, 100, "rejected"),
+        ("0.01", "0.01", "approved"),
+        ("99.99", "100.00", "approved"),
+        ("100.01", "100.00", "rejected"),
+        ("100.00", "100.00", "approved"),
+    ],
+)
+def test_expense_amount_boundaries(
+    amount,
+    remaining,
+    expected,
+):
+    result = evaluate_expense(
+        amount=amount,
+        budget_remaining=remaining,
+        budget_version_matches=True,
+        valid_approver=True,
+        requires_escalation=False,
+    )
+
+    assert result == expected
