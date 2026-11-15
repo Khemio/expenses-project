@@ -160,8 +160,7 @@ def main():
         "pytest",
         "-o",
         "addopts=",
-        "tests/integration",
-        *sys.argv[1:],
+        *(sys.argv[1:] or ["tests/integration"]),
     ]
 
     

@@ -108,3 +108,66 @@ def test_document_stored_in_both_vector_databases(
     # Check vector dimensions and approximate values.
     assert len(point.vector) == 384
     assert point.vector[0] == pytest.approx(1.0)
+
+
+
+@pytest.mark.integration
+def test_repeated_storage_updates_existing_document(
+    vector_document,
+):
+    document, vector, point_id = vector_document
+
+    # First write.
+    store_documents([document], [vector])
+
+    # Update the document and its embedding.
+    updated_document = {
+        **document,
+        "text": "Updated policy: equipment needs approval.",
+        "filter_group": "updated",
+    }
+
+    updated_vector = np.zeros(384, dtype=np.float32)
+    updated_vector[1] = 1.0
+
+    store_documents(
+        [updated_document],
+        [updated_vector],
+    )
+
+    # PostgreSQL must contain one updated row.
+    with get_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT content, filter_group
+            FROM vector_documents
+            WHERE id = %s
+            """,
+            (document["id"],),
+        ).fetchall()
+
+    assert rows == [
+        (
+            updated_document["text"],
+            "updated",
+        )
+    ]
+
+    # Qdrant must contain one updated point.
+    points = get_qdrant_client().retrieve(
+        collection_name=COLLECTION_NAME,
+        ids=[point_id],
+        with_payload=True,
+        with_vectors=True,
+    )
+
+    assert len(points) == 1
+
+    point = points[0]
+
+    assert point.payload["content"] == updated_document["text"]
+    assert point.payload["filter_group"] == "updated"
+
+    assert len(point.vector) == 384
+    assert point.vector[0] == pytest.approx(0.0)
+    assert point.vector[1] == pytest.approx(1.0)
