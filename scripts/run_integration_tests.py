@@ -146,7 +146,8 @@ def main():
         "REDIS_PORT": "56379",
         "REDIS_PASSWORD": "local_test_password",
 
-        "QDRANT_URL": "http://127.0.0.1:6333",
+        # "QDRANT_URL": "http://127.0.0.1:6333",
+        "QDRANT_URL": "http://127.0.0.1:56333",
     })
 
     # Initialize under the same explicit test configuration.
