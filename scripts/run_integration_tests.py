@@ -2,10 +2,14 @@
 import os
 import subprocess
 import sys
-from pathlib import Path
-from neo4j import GraphDatabase
 
 import psycopg
+import redis
+
+from pathlib import Path
+from neo4j import GraphDatabase
+from pymongo import MongoClient
+
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -72,11 +76,47 @@ def verify_test_cleanup() -> bool:
     finally:
         driver.close()
 
+    
+    # Verify MongoDB cleanup.
+    mongo_client = MongoClient(
+        "mongodb://expense_test:local_test_password"
+        "@127.0.0.1:57017/?authSource=admin",
+        serverSelectionTimeoutMS=5000,
+    )
+
+    try:
+        mongodb_remaining = mongo_client[
+            "expense_approval"
+        ]["receipts"].count_documents({})
+    finally:
+        mongo_client.close()
+
+    # Verify Redis cleanup.
+    redis_client = redis.Redis(
+        host="127.0.0.1",
+        port=56379,
+        password="local_test_password",
+        decode_responses=True,
+    )
+
+    try:
+        redis_remaining = redis_client.dbsize()
+    finally:
+        redis_client.close()
+
+
     print("\n--- Integration test cleanup verification ---")
     print("PostgreSQL test cost centres:", postgres_remaining)
     print("Neo4j tagged test nodes:", neo4j_remaining)
+    print("MongoDB receipt documents:", mongodb_remaining)
+    print("Redis keys:", redis_remaining)
 
-    if postgres_remaining != 0 or neo4j_remaining != 0:
+    if any((
+        postgres_remaining != 0,
+        neo4j_remaining != 0,
+        mongodb_remaining != 0,
+        redis_remaining != 0,
+    )):
         print("FAILED: Integration tests left records behind.")
         return False
 
@@ -98,8 +138,6 @@ def main():
         # Required by the current centralized Settings class.
         # These services are not used by this test suite yet.
         
-        # "MONGO_URI": "mongodb://127.0.0.1:27017",
-        # "REDIS_PASSWORD": "unused_for_these_tests",
         "MONGO_URI": (
             "mongodb://expense_test:local_test_password"
             "@127.0.0.1:57017/?authSource=admin"
