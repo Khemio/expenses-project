@@ -253,24 +253,6 @@ def expense_scenario():
                         if expense_factory is not None:
                             expense_factory.cleanup(cur)
 
-                        # 1. Decisions reference expenses and employees.
-                        # if created_expense_ids:
-                        #     cur.execute(
-                        #         """
-                        #         DELETE FROM decisions
-                        #         WHERE expense_id = ANY(%s)
-                        #         """,
-                        #         (created_expense_ids,),
-                        #     )
-
-                        #     cur.execute(
-                        #         """
-                        #         DELETE FROM expenses
-                        #         WHERE id = ANY(%s)
-                        #         """,
-                        #         (created_expense_ids,),
-                        #     )
-
                         # # 3. Remove the budget.
                         if budget_id is not None:
                             cur.execute(

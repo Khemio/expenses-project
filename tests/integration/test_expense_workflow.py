@@ -2,11 +2,75 @@
 from decimal import Decimal
 
 import pytest
+import psycopg
 
 from app.database.postgres import get_connection
 from app.services.exceptions import WorkflowError
 from app.services.expense_workflow import process_expense
 from app.services.exceptions import BudgetConflict, WorkflowError
+import app.services.expense_workflow as workflow
+
+
+@pytest.mark.integration
+def test_approval_rolls_back_when_decision_insert_fails(
+    expense_scenario,
+    monkeypatch,
+):
+    expense_id = expense_scenario["expense_id"]
+    budget_id = expense_scenario["budget_id"]
+    version = expense_scenario["version"]
+
+    # Choose an approver ID that must not exist.
+    invalid_approver_id = -999
+
+    # Allow authorization so execution reaches
+    # the PostgreSQL decision insertion.
+    monkeypatch.setattr(
+        workflow,
+        "is_authorized_approver",
+        lambda **kwargs: True,
+    )
+
+    with pytest.raises(psycopg.errors.ForeignKeyViolation):
+        workflow.process_expense(
+            expense_id=expense_id,
+            approver_id=invalid_approver_id,
+            expected_version=version,
+        )
+
+    # Verify that all earlier updates were rolled back.
+    with get_connection() as conn:
+        budget = conn.execute(
+            """
+            SELECT remaining, version
+            FROM budgets
+            WHERE id = %s
+            """,
+            (budget_id,),
+        ).fetchone()
+
+        status = conn.execute(
+            """
+            SELECT status
+            FROM expenses
+            WHERE id = %s
+            """,
+            (expense_id,),
+        ).fetchone()[0]
+
+        decision_count = conn.execute(
+            """
+            SELECT COUNT(*)
+            FROM decisions
+            WHERE expense_id = %s
+            """,
+            (expense_id,),
+        ).fetchone()[0]
+
+    assert budget == (Decimal("2000"), version)
+    assert status == "pending"
+    assert decision_count == 0
+
 
 
 @pytest.mark.integration
