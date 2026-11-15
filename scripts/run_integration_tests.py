@@ -116,12 +116,7 @@ def main():
         *sys.argv[1:],
     ]
 
-    # return subprocess.run(
-    #     command,
-    #     cwd=ROOT,
-    #     env=env,
-    #     check=False,
-    # ).returncode
+    
     result = subprocess.run(
         command,
         cwd=ROOT,
@@ -129,18 +124,24 @@ def main():
         check=False,
     )
 
-    if result.returncode != 0:
-        print("Integration tests failed.")
-        return result.returncode
+    cleanup_ok = False
 
     try:
-        if not verify_test_cleanup():
-            return 1
+        cleanup_ok = verify_test_cleanup()
     except Exception as error:
         print(f"Cleanup verification failed: {error}")
+
+    if result.returncode != 0:
+        print("FAILED: Integration tests did not pass.")
+        return result.returncode
+
+    if not cleanup_ok:
+        print("FAILED: Integration test cleanup verification.")
         return 1
 
+    print("SUCCESS: Tests and cleanup verification passed.")
     return 0
+
 
 
 if __name__ == "__main__":
