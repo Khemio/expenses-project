@@ -53,3 +53,18 @@ CREATE TABLE decisions (
 ALTER TABLE decisions
 ADD COLUMN IF NOT EXISTS target_approver_id INTEGER
 REFERENCES employees(id);
+
+
+CREATE TABLE IF NOT EXISTS vector_documents (
+    id TEXT PRIMARY KEY,
+    document_type TEXT NOT NULL,
+    content TEXT NOT NULL,
+    source_id TEXT NOT NULL,
+    filter_group TEXT NOT NULL DEFAULT 'common',
+    refreshed_at TIMESTAMPTZ NOT NULL,
+    embedding VECTOR(384) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS
+    vector_documents_filter_group_idx
+    ON vector_documents(filter_group);

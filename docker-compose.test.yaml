@@ -1,0 +1,96 @@
+
+name: expenses-tests
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: expense_approval_test
+      POSTGRES_USER: expense_test
+      POSTGRES_PASSWORD: local_test_password
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - test_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U expense_test -d expense_approval_test
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  neo4j:
+    image: neo4j:5.26.2-community
+    environment:
+      NEO4J_AUTH: neo4j/local_test_password
+    ports:
+      - "127.0.0.1:57474:7474"
+      - "127.0.0.1:57687:7687"
+    volumes:
+      - test_neo4j_data:/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - cypher-shell -u neo4j -p local_test_password 'RETURN 1'
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    
+  mongodb:
+    image: mongo:7.0.16
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: expense_test
+      MONGO_INITDB_ROOT_PASSWORD: local_test_password
+    ports:
+      - "127.0.0.1:57017:27017"
+    volumes:
+      - test_mongodb_data:/data/db
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mongosh --quiet -u expense_test -p local_test_password --authenticationDatabase admin --eval "db.adminCommand('ping').ok"
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+  redis:
+    image: redis:7.4.2
+    command:
+      - redis-server
+      - --requirepass
+      - local_test_password
+    ports:
+      - "127.0.0.1:56379:6379"
+    volumes:
+      - test_redis_data:/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - redis-cli -a local_test_password --no-auth-warning ping
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  
+  qdrant:
+    image: qdrant/qdrant:v1.13.3
+    ports:
+      - "127.0.0.1:56333:6333"
+    volumes:
+      - test_qdrant_data:/qdrant/storage
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "bash -c '</dev/tcp/127.0.0.1/6333'"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+
+
+volumes:
+  test_postgres_data:
+  test_neo4j_data:
+  test_mongodb_data:
+  test_redis_data:
+  test_qdrant_data:
