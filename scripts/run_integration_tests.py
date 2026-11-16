@@ -251,6 +251,26 @@ def verify_test_cleanup() -> bool:
 
 
 
+def initialize_auth_schema():
+    """Apply the idempotent authentication schema."""
+    migration_path = (
+        ROOT
+        / "app"
+        / "database"
+        / "migrations"
+        / "001_api_sessions.sql"
+    )
+
+    with psycopg.connect(TEST_DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                migration_path.read_text(encoding="utf-8")
+            )
+
+    print("Authentication schema ready.")
+
+
+
 def main():
     env = os.environ.copy()
 
@@ -280,6 +300,7 @@ def main():
     try:
         verify_test_environment()
         initialize_database()
+        initialize_auth_schema()
     except Exception as error:
         print(f"FAILED: Test environment preparation: {error}")
         return 1
