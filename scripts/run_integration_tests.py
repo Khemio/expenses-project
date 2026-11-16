@@ -156,6 +156,9 @@ def verify_test_cleanup() -> bool:
             cur.execute("SELECT COUNT(*) FROM vector_documents")
             postgres_vectors_remaining = cur.fetchone()[0]
 
+            cur.execute("SELECT COUNT(*) FROM api_sessions")
+            postgres_sessions_remaining = cur.fetchone()[0]
+
     # Verify Neo4j cleanup.
     driver = GraphDatabase.driver(
         "bolt://127.0.0.1:57687",
@@ -234,6 +237,7 @@ def verify_test_cleanup() -> bool:
     print("Redis keys:", redis_remaining)
     print("Qdrant vector points:", qdrant_remaining)
     print("Postgres vector points:", postgres_vectors_remaining)
+    print("PostgreSQL API sessions:", postgres_sessions_remaining)
 
     if any((
         postgres_remaining != 0,
@@ -242,6 +246,7 @@ def verify_test_cleanup() -> bool:
         redis_remaining != 0,
         qdrant_remaining != 0,
         postgres_vectors_remaining != 0,
+        postgres_sessions_remaining != 0,
     )):
         print("FAILED: Integration tests left records behind.")
         return False
