@@ -37,26 +37,6 @@ def generate_embeddings(documents):
     return embeddings
 
 
-# def setup_postgres():
-#     with get_connection() as conn:
-#         with conn.cursor() as cur:
-#             cur.execute("""
-#                 ALTER TABLE vector_documents
-#                 ADD COLUMN IF NOT EXISTS filter_group TEXT
-#                 NOT NULL DEFAULT 'common';
-#             """)
-
-#             cur.execute("""
-#                 CREATE INDEX IF NOT EXISTS
-#                 vector_documents_filter_group_idx
-#                 ON vector_documents(filter_group);
-#             """)
-
-#         conn.commit()
-
-#     print("PostgreSQL vector table ready.")
-
-
 def setup_postgres():
     with get_connection() as conn:
         with conn.cursor() as cur:
