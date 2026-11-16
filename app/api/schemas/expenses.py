@@ -24,3 +24,10 @@ class ExpenseResponse(BaseModel):
     expense_date: date
     status: ExpenseStatus
     created_at: datetime
+
+
+class ExpensePage(BaseModel):
+    items: list[ExpenseResponse]
+    total: int
+    limit: int
+    offset: int

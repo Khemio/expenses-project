@@ -51,3 +51,89 @@ def test_get_expense_invalid_id(client):
     )
 
     assert response.status_code == 422
+
+
+def test_list_expenses_with_pagination(
+    client, expense_scenario
+):
+    first_id = expense_scenario["expense_id"]
+    second_id = expense_scenario["create_expense"](
+        description="Second expense"
+    )
+    third_id = expense_scenario["create_expense"](
+        description="Third expense"
+    )
+
+    centre_id = expense_scenario["cost_centre_id"]
+
+    response = client.get(
+        "/api/v1/expenses",
+        params={
+            "cost_centre_id": centre_id,
+            "limit": 2,
+            "offset": 0,
+        },
+    )
+
+    assert response.status_code == 200
+
+    page = response.json()
+    assert page["total"] == 3
+    assert page["limit"] == 2
+    assert page["offset"] == 0
+    assert [
+        item["id"] for item in page["items"]
+    ] == [third_id, second_id]
+
+    next_page = client.get(
+        "/api/v1/expenses",
+        params={
+            "cost_centre_id": centre_id,
+            "limit": 2,
+            "offset": 2,
+        },
+    ).json()
+
+    assert next_page["total"] == 3
+    assert [
+        item["id"] for item in next_page["items"]
+    ] == [first_id]
+
+
+def test_list_expenses_status_filter(
+    client, expense_scenario
+):
+    response = client.get(
+        "/api/v1/expenses",
+        params={
+            "cost_centre_id": expense_scenario[
+                "cost_centre_id"
+            ],
+            "status": "approved",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 0
+    assert response.json()["items"] == []
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        {"limit": 0},
+        {"limit": 101},
+        {"offset": -1},
+        {"status": "unknown"},
+        {"cost_centre_id": 0},
+    ],
+)
+def test_list_expenses_invalid_parameters(
+    client, params
+):
+    response = client.get(
+        "/api/v1/expenses",
+        params=params,
+    )
+
+    assert response.status_code == 422

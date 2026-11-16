@@ -1,10 +1,10 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Path
+from fastapi import APIRouter, HTTPException, Path, Query
 
-from app.api.schemas.expenses import ExpenseResponse
-from app.services.expense_queries import get_expense
+from app.api.schemas.expenses import ExpenseResponse, ExpensePage, ExpenseStatus
+from app.services.expense_queries import get_expense, list_expenses
 
 router = APIRouter(
     prefix="/expenses",
@@ -28,3 +28,22 @@ def read_expense(
 
     return ExpenseResponse.model_validate(expense)
     
+
+
+@router.get("", response_model=ExpensePage)
+def read_expenses(
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    offset: Annotated[int, Query(ge=0)] = 0,
+    status: ExpenseStatus | None = None,
+    cost_centre_id: Annotated[
+        int | None, Query(gt=0)
+    ] = None,
+) -> ExpensePage:
+    result = list_expenses(
+        limit=limit,
+        offset=offset,
+        status=status,
+        cost_centre_id=cost_centre_id,
+    )
+
+    return ExpensePage.model_validate(result)
