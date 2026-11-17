@@ -7,3 +7,6 @@ class WorkflowError(Exception):
 
 class UnauthorizedApprover(WorkflowError):
     """The employee lacks permission for the requested action."""
+
+class ExpenseNotFound(WorkflowError):
+    """The requested expense does not exist."""

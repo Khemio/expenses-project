@@ -1,8 +1,12 @@
 
 from typing import Literal
 
-from app.services.exceptions import UnauthorizedApprover
-from app.services.exceptions import BudgetConflict, WorkflowError
+from app.services.exceptions import (
+    BudgetConflict, 
+    WorkflowError, 
+    ExpenseNotFound,
+    UnauthorizedApprover,
+)
 from app.services.authorization_service import is_authorized_approver
 from app.services.escalation_service import find_responsible_approver
 from app.database.postgres import get_connection
@@ -59,7 +63,7 @@ def process_expense(
             expense = cur.fetchone()
 
             if expense is None:
-                raise WorkflowError("Expense not found")
+                raise ExpenseNotFound("Expense not found")
 
             (
                 budget_id,
