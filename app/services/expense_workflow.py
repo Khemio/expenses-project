@@ -1,24 +1,26 @@
-# import os
 
-# import psycopg
-# from dotenv import load_dotenv
+from typing import Literal
 
+from app.services.exceptions import UnauthorizedApprover
 from app.services.exceptions import BudgetConflict, WorkflowError
 from app.services.authorization_service import is_authorized_approver
 from app.services.escalation_service import find_responsible_approver
 from app.database.postgres import get_connection
 
-# load_dotenv()
-
-
-# class WorkflowError(Exception):
-#     """Raised when an expense cannot be processed."""
+WorkflowAction = Literal[
+    "automatic",
+    "approve",
+    "reject",
+    "escalate",
+]
 
 
 def process_expense(
     expense_id: int,
     approver_id: int,
     expected_version: int,
+    action: WorkflowAction = "automatic",
+    comment: str | None = None,
 ):
     """
     Process an expense using PostgreSQL and Neo4j.
@@ -44,7 +46,8 @@ def process_expense(
                     e.cost_centre_id,
                     e.amount,
                     e.expense_date,
-                    e.status
+                    e.status,
+                    e.employee_id
                 FROM expenses e
                 WHERE e.id = %s
                 FOR UPDATE OF e
@@ -63,6 +66,7 @@ def process_expense(
                 amount,
                 expense_date,
                 status,
+                submitter_id,
             ) = expense
 
             if status not in ("pending", "escalated"):
@@ -86,6 +90,11 @@ def process_expense(
             if budget is None:
                 raise WorkflowError("Budget not found")
 
+            if action not in (
+                "automatic", "approve", "reject", "escalate"
+            ):
+                raise ValueError("Unsupported workflow action")
+
             remaining, version, budget_cost_centre_id = budget
 
             if budget_cost_centre_id != cost_centre_id:
@@ -108,19 +117,7 @@ def process_expense(
 
             # 4. An escalated expense must be handled by
             # the directly responsible employee.
-            # if status == "escalated":
-            #     responsible_id = find_responsible_approver(
-            #         cost_centre_id
-            #     )
-
-            #     if (
-            #         responsible_id != approver_id
-            #         or not authorized
-            #     ):
-            #         raise WorkflowError(
-            #             "Escalated expense requires its "
-            #             "responsible approver"
-            #         )
+            
             if status == "escalated":
                 cur.execute(
                     """
@@ -154,18 +151,50 @@ def process_expense(
                         "Assigned approver no longer has authority"
                     )
 
-            # 5. Determine the business outcome.
-            target_approver_id = None
             
-            if authorized:
-                if amount > remaining:
-                    outcome = "rejected"
-                    comment = "Rejected: insufficient budget"
-                else:
-                    outcome = "approved"
-                    comment = "Approved by authorized employee"
+            # 5. Determine the requested outcome.
+            target_approver_id = None
 
-            else:
+            if action == "approve":
+                if not authorized:
+                    raise UnauthorizedApprover(
+                        "Employee is not authorized to approve"
+                    )
+
+                if amount > remaining:
+                    raise WorkflowError(
+                        "Insufficient budget for approval"
+                    )
+
+                outcome = "approved"
+                decision_comment = (
+                    comment or "Approved by authorized employee"
+                )
+
+            elif action == "reject":
+                if not authorized:
+                    raise UnauthorizedApprover(
+                        "Employee is not authorized to reject"
+                    )
+
+                outcome = "rejected"
+                decision_comment = (
+                    comment or "Rejected by authorized employee"
+                )
+
+            elif action == "escalate":
+                if status != "pending":
+                    raise WorkflowError(
+                        "Only pending expenses may be escalated"
+                    )
+
+                # Initial policy: only the submitting employee
+                # may explicitly request escalation.
+                if approver_id != submitter_id:
+                    raise UnauthorizedApprover(
+                        "Only the submitter may request escalation"
+                    )
+
                 responsible_id = find_responsible_approver(
                     cost_centre_id
                 )
@@ -187,21 +216,61 @@ def process_expense(
                         "Escalation target is not authorized"
                     )
 
-                if amount > remaining:
-                    raise WorkflowError(
-                        "Insufficient budget; an authorized "
-                        "approver must reject this expense"
-                    )
-
-                # outcome = "escalated"
-                # comment = (
-                #     f"Escalated to employee {responsible_id}"
-                # )
                 outcome = "escalated"
                 target_approver_id = responsible_id
-                comment = (
-                    f"Escalated to employee {responsible_id}"
+                decision_comment = (
+                    comment
+                    or f"Escalated to employee {responsible_id}"
                 )
+
+            else:
+                # Legacy automatic processing.
+                # Retained temporarily for existing callers.
+                if authorized:
+                    if amount > remaining:
+                        outcome = "rejected"
+                        decision_comment = (
+                            "Rejected: insufficient budget"
+                        )
+                    else:
+                        outcome = "approved"
+                        decision_comment = (
+                            "Approved by authorized employee"
+                        )
+                else:
+                    responsible_id = find_responsible_approver(
+                        cost_centre_id
+                    )
+
+                    if responsible_id is None:
+                        raise WorkflowError(
+                            "No escalation target available"
+                        )
+
+                    target_authorized = is_authorized_approver(
+                        approver_id=responsible_id,
+                        cost_centre_id=cost_centre_id,
+                        amount=amount,
+                        expense_date=expense_date,
+                    )
+
+                    if not target_authorized:
+                        raise WorkflowError(
+                            "Escalation target is not authorized"
+                        )
+
+                    if amount > remaining:
+                        raise WorkflowError(
+                            "Insufficient budget; an authorized "
+                            "approver must reject this expense"
+                        )
+
+                    outcome = "escalated"
+                    target_approver_id = responsible_id
+                    decision_comment = (
+                        f"Escalated to employee {responsible_id}"
+                    )
+
 
             # 6. Deduct budget only for approval.
             if outcome == "approved":
@@ -241,23 +310,6 @@ def process_expense(
                 )
 
             # 8. Record the decision.
-            # cur.execute(
-            #     """
-            #     INSERT INTO decisions (
-            #         expense_id,
-            #         approver_id,
-            #         decision,
-            #         comment
-            #     )
-            #     VALUES (%s, %s, %s, %s)
-            #     """,
-            #     (
-            #         expense_id,
-            #         approver_id,
-            #         outcome,
-            #         comment,
-            #     ),
-            # )
             cur.execute(
                 """
                 INSERT INTO decisions (
@@ -274,7 +326,7 @@ def process_expense(
                     approver_id,
                     target_approver_id,
                     outcome,
-                    comment,
+                    decision_comment,
                 ),
             )
 
@@ -285,5 +337,50 @@ def process_expense(
         "previous_status": status,
         "status": outcome,
         "approver_id": approver_id,
-        "comment": comment,
+        "comment": decision_comment,
     }
+
+
+
+def approve_expense(
+    expense_id: int,
+    approver_id: int,
+    expected_version: int,
+):
+    return process_expense(
+        expense_id=expense_id,
+        approver_id=approver_id,
+        expected_version=expected_version,
+        action="approve",
+    )
+
+
+def reject_expense(
+    expense_id: int,
+    approver_id: int,
+    expected_version: int,
+    reason: str,
+):
+    if not reason.strip():
+        raise ValueError("Rejection reason cannot be blank")
+
+    return process_expense(
+        expense_id=expense_id,
+        approver_id=approver_id,
+        expected_version=expected_version,
+        action="reject",
+        comment=reason.strip(),
+    )
+
+
+def escalate_expense(
+    expense_id: int,
+    employee_id: int,
+    expected_version: int,
+):
+    return process_expense(
+        expense_id=expense_id,
+        approver_id=employee_id,
+        expected_version=expected_version,
+        action="escalate",
+    )

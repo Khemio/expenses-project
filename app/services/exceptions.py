@@ -4,3 +4,6 @@ class BudgetConflict(Exception):
 
 class WorkflowError(Exception):
     """The expense cannot be processed in its current state."""
+
+class UnauthorizedApprover(WorkflowError):
+    """The employee lacks permission for the requested action."""

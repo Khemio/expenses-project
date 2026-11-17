@@ -1,0 +1,7 @@
+app/services/rejection_service.py:12:class RejectionError(Exception):
+app/services/rejection_service.py:17:def reject_expense_for_insufficient_budget(
+app/services/rejection_service.py:48:        raise RejectionError("Expense is not pending")
+app/services/rejection_service.py:59:        raise RejectionError("Approver is not authorized")
+app/services/rejection_service.py:83:                raise RejectionError("Expense status changed")
+app/services/rejection_service.py:108:                raise RejectionError(
+app/services/rejection_service.py:122:                raise RejectionError("Expense status changed")
