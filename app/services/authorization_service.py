@@ -4,23 +4,12 @@ from decimal import Decimal
 
 from app.database.neo4j import get_driver
 
-# from dotenv import load_dotenv
-# from neo4j import GraphDatabase
-
-# load_dotenv()
-
-
 def is_authorized_approver(
     approver_id: int,
     cost_centre_id: int,
     amount,
     expense_date: date,
 ) -> bool:
-
-    # driver = GraphDatabase.driver(
-    #     "bolt://localhost:7687",
-    #     auth=("neo4j", os.getenv("NEO4J_PASSWORD")),
-    # )
 
     query = """
     MATCH (owner:Employee)-[:RESPONSIBLE_FOR]->(cc:CostCentre)

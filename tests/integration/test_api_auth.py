@@ -20,24 +20,6 @@ def client():
         yield test_client
 
 
-@pytest.fixture
-def auth_token(expense_scenario):
-    employee_id = expense_scenario["employee_id"]
-
-    token = create_session(employee_id)
-
-    try:
-        yield token
-    finally:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    """
-                    DELETE FROM api_sessions
-                    WHERE token_hash = %s
-                    """,
-                    (hash_session_token(token),),
-                )
 
 
 def test_authenticated_employee(

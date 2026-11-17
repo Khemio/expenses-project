@@ -12,7 +12,10 @@ import pytest
 from app.database.neo4j import get_driver
 from app.database.postgres import get_connection
 from tests.integration.factories import ExpenseFactory
-
+from app.services.auth_sessions import (
+    create_session,
+    hash_session_token,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -66,7 +69,6 @@ def require_test_databases():
 
     if settings.qdrant_url != "http://127.0.0.1:56333":
         pytest.fail("Unsafe Qdrant test configuration")
-
 
 
 @pytest.fixture
@@ -272,4 +274,24 @@ def expense_scenario():
                             """,
                             (cost_centre_id,),
                         )
+
+
+@pytest.fixture
+def auth_token(expense_scenario):
+    employee_id = expense_scenario["employee_id"]
+
+    token = create_session(employee_id)
+
+    try:
+        yield token
+    finally:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    DELETE FROM api_sessions
+                    WHERE token_hash = %s
+                    """,
+                    (hash_session_token(token),),
+                )
 

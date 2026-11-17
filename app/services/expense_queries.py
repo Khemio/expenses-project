@@ -3,8 +3,12 @@ from psycopg.rows import dict_row
 
 from app.database.postgres import get_connection
 
-def get_expense(expense_id: int) -> dict | None:
-    """Retrieve one expense without modifying database state."""
+
+def get_expense(
+    expense_id: int,
+    employee_id: int,
+) -> dict | None:
+    """Retrieve an expense owned by an employee."""
 
     with get_connection() as conn:
         with conn.cursor(row_factory=dict_row) as cur:
@@ -22,8 +26,9 @@ def get_expense(expense_id: int) -> dict | None:
                     created_at
                 FROM expenses
                 WHERE id = %s
+                  AND employee_id = %s
                 """,
-                (expense_id,),
+                (expense_id, employee_id),
             )
 
             return cur.fetchone()
@@ -35,9 +40,10 @@ def list_expenses(
     offset: int,
     status: str | None = None,
     cost_centre_id: int | None = None,
+    employee_id: int,
 ) -> dict:
-    conditions = []
-    params = []
+    conditions = ["employee_id = %s"]
+    params = [employee_id]
 
     if status is not None:
         conditions.append("status = %s")
