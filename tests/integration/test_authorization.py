@@ -1,10 +1,15 @@
 
 from datetime import date
+from decimal import Decimal
 
 import pytest
 
 from app.database.neo4j import get_driver
 from app.services.authorization_service import is_authorized_approver
+
+from app.services.authorization_service import (
+    get_authorized_expense_ids,
+)
 
 
 @pytest.fixture
@@ -210,3 +215,49 @@ def test_multi_hop_delegation(
 
     assert actual is expected
 
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "amount, expected",
+    [
+        ("999.99", True),
+        ("1000.00", True),
+        ("1000.01", False),
+        ("1000.02", False),
+    ],
+)
+def test_delegation_monetary_boundaries(
+    delegated_scenario,
+    amount,
+    expected,
+):
+    s = delegated_scenario
+    delegate_id = s["unauthorized_employee_id"]
+    centre_id = s["cost_centre_id"]
+    expense_date = date(2026, 11, 9)
+    decimal_amount = Decimal(amount)
+
+    single_result = is_authorized_approver(
+        approver_id=delegate_id,
+        cost_centre_id=centre_id,
+        amount=decimal_amount,
+        expense_date=expense_date,
+    )
+
+    candidate = {
+        "id": s["expense_id"],
+        "cost_centre_id": centre_id,
+        "amount": decimal_amount,
+        "expense_date": expense_date,
+    }
+
+    batch_result = get_authorized_expense_ids(
+        approver_id=delegate_id,
+        candidates=[candidate],
+    )
+
+    assert single_result is expected
+    assert (
+        s["expense_id"] in batch_result
+    ) is expected
