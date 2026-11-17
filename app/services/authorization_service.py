@@ -4,6 +4,7 @@ from decimal import Decimal
 from collections.abc import Sequence
 
 from app.database.neo4j import get_driver
+from app.services.money import to_cents
 
 def is_authorized_approver(
     approver_id: int,
@@ -21,7 +22,7 @@ def is_authorized_approver(
 
     AND ALL(rel IN relationships(path) WHERE
         rel.scope = cc.name
-        AND rel.amount_limit >= $amount
+        AND rel.amount_limit_cents >= $amount_cents
         AND date(rel.valid_from) <= date($expense_date)
         AND date(rel.valid_to) >= date($expense_date)
     )
@@ -34,7 +35,7 @@ def is_authorized_approver(
             query,
             approver_id=approver_id,
             cost_centre_id=cost_centre_id,
-            amount=float(Decimal(str(amount))),
+            amount_cents=to_cents(amount),
             expense_date=expense_date.isoformat(),
         )
 
@@ -72,7 +73,7 @@ def get_authorized_expense_ids(
 
     AND ALL(rel IN relationships(path) WHERE
         rel.scope = cc.name
-        AND rel.amount_limit >= item.amount
+        AND rel.amount_limit_cents >= item.amount_cents
         AND date(rel.valid_from) <= date(item.expense_date)
         AND date(rel.valid_to) >= date(item.expense_date)
     )
@@ -90,9 +91,7 @@ def get_authorized_expense_ids(
                 {
                     "id": item["id"],
                     "cost_centre_id": item["cost_centre_id"],
-                    "amount": float(
-                        Decimal(str(item["amount"]))
-                    ),
+                    "amount_cents": to_cents(item["amount"]),
                     "expense_date": (
                         item["expense_date"].isoformat()
                     ),

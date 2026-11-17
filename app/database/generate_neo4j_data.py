@@ -13,7 +13,13 @@ SEED = 42
 EXPECTED_EMPLOYEES = 250
 EXPECTED_CENTRES = 8
 
-DELEGATION_LIMITS = [500, 1000, 1500, 2500, 5000]
+DELEGATION_LIMITS_CENTS = [
+    50_000,
+    100_000,
+    150_000,
+    250_000,
+    500_000,
+]
 
 
 def load_postgres_data():
@@ -111,7 +117,9 @@ def generate_relationships(employees, centres):
                 "owner_id": owner["employee_id"],
                 "delegate_id": employee_id,
                 "scope": centre["name"],
-                "amount_limit": rng.choice(DELEGATION_LIMITS),
+                "amount_limit_cents": rng.choice(
+                    DELEGATION_LIMITS_CENTS
+                ),
                 "valid_from": "2026-01-01",
                 "valid_to": "2027-12-31",
                 "source_id": f"synthetic_delegation_{employee_id}",
@@ -226,7 +234,7 @@ def main():
                 }]->(delegate)
 
                 SET r.scope = row.scope,
-                    r.amount_limit = row.amount_limit,
+                    r.amount_limit_cents = row.amount_limit_cents,
                     r.valid_from = row.valid_from,
                     r.valid_to = row.valid_to,
                     r.refreshed_at = row.refreshed_at

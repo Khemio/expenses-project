@@ -5,6 +5,7 @@ from decimal import Decimal
 import pytest
 
 from app.database.neo4j import get_driver
+from app.services.money import to_cents
 from app.services.authorization_service import is_authorized_approver
 
 from app.services.authorization_service import (
@@ -28,7 +29,7 @@ def delegated_scenario(expense_scenario):
 
             CREATE (owner)-[:DELEGATED_TO {
                 scope: cc.name,
-                amount_limit: 1000.0,
+                amount_limit_cents: 100000,
                 valid_from: date('2026-01-01'),
                 valid_to: date('2026-12-31')
             }]->(delegate)
@@ -178,7 +179,7 @@ def test_multi_hop_delegation(
 
             CREATE (owner)-[:DELEGATED_TO {
                 scope: cc.name,
-                amount_limit: $first_limit,
+                amount_limit_cents: $first_limit_cents,
                 valid_from: '2026-01-01',
                 valid_to: $first_valid_to
             }]->(middle)
@@ -189,7 +190,7 @@ def test_multi_hop_delegation(
                     THEN cc.name
                     ELSE 'Other Cost Centre'
                 END,
-                amount_limit: $second_limit,
+                amount_limit_cents: $second_limit_cents,
                 valid_from: '2026-01-01',
                 valid_to: '2026-12-31'
             }]->(delegate)
@@ -198,8 +199,8 @@ def test_multi_hop_delegation(
             delegate_id=delegate_id,
             centre_id=centre_id,
             intermediate_id=intermediate_id,
-            first_limit=first_limit,
-            second_limit=second_limit,
+            first_limit_cents=to_cents(first_limit),
+            second_limit_cents=to_cents(second_limit),
             first_valid_to=first_valid_to,
             second_scope_valid=second_scope_valid,
         ).consume()
