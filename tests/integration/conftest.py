@@ -217,6 +217,7 @@ def expense_scenario():
             "cost_centre_id": cost_centre_id,
             "version": version,
             "create_expense": expense_factory.create,
+            "track_expense": expense_factory.track,
         }
 
 

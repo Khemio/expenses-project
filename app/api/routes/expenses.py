@@ -1,12 +1,20 @@
 
 from typing import Annotated
 
+from fastapi import status
 from fastapi import Depends
 from fastapi import APIRouter, HTTPException, Path, Query
 
 from app.api.schemas.expenses import ExpenseResponse, ExpensePage, ExpenseStatus
-from app.services.expense_queries import get_expense, list_expenses
 from app.api.dependencies.auth import get_current_employee
+from app.services.expense_queries import get_expense, list_expenses
+from app.services.expense_submission import (
+    InvalidExpenseAssignment,
+    submit_expense,
+)
+
+
+from app.api.schemas.expenses import ExpenseCreate
 
 router = APIRouter(
     prefix="/expenses",
@@ -58,3 +66,33 @@ def read_expenses(
     )
 
     return ExpensePage.model_validate(result)
+
+
+
+@router.post(
+    "",
+    response_model=ExpenseResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_expense(
+    payload: ExpenseCreate,
+    employee: Annotated[
+        dict, Depends(get_current_employee)
+    ],
+) -> ExpenseResponse:
+    try:
+        expense = submit_expense(
+            employee_id=employee["id"],
+            cost_centre_id=payload.cost_centre_id,
+            budget_id=payload.budget_id,
+            amount=payload.amount,
+            description=payload.description,
+            expense_date=payload.expense_date,
+        )
+    except InvalidExpenseAssignment as exc:
+        raise HTTPException(
+            status_code=422,
+            detail=str(exc),
+        ) from exc
+
+    return ExpenseResponse.model_validate(expense)
