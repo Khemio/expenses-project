@@ -8,7 +8,6 @@ from app.services.escalation_service import find_responsible_approver
 from app.database.postgres import get_connection
 
 WorkflowAction = Literal[
-    "automatic",
     "approve",
     "reject",
     "escalate",
@@ -19,7 +18,7 @@ def process_expense(
     expense_id: int,
     approver_id: int,
     expected_version: int,
-    action: WorkflowAction = "automatic",
+    action: WorkflowAction,
     comment: str | None = None,
 ):
     """
@@ -34,7 +33,9 @@ def process_expense(
     employee directly responsible for its cost centre.
     """
 
-    # with psycopg.connect(os.getenv("DATABASE_URL")) as conn:
+    if action not in ("approve", "reject", "escalate"):
+        raise ValueError("Unsupported workflow action")
+    
     with get_connection() as conn:
         with conn.cursor() as cur:
 
@@ -222,54 +223,6 @@ def process_expense(
                     comment
                     or f"Escalated to employee {responsible_id}"
                 )
-
-            else:
-                # Legacy automatic processing.
-                # Retained temporarily for existing callers.
-                if authorized:
-                    if amount > remaining:
-                        outcome = "rejected"
-                        decision_comment = (
-                            "Rejected: insufficient budget"
-                        )
-                    else:
-                        outcome = "approved"
-                        decision_comment = (
-                            "Approved by authorized employee"
-                        )
-                else:
-                    responsible_id = find_responsible_approver(
-                        cost_centre_id
-                    )
-
-                    if responsible_id is None:
-                        raise WorkflowError(
-                            "No escalation target available"
-                        )
-
-                    target_authorized = is_authorized_approver(
-                        approver_id=responsible_id,
-                        cost_centre_id=cost_centre_id,
-                        amount=amount,
-                        expense_date=expense_date,
-                    )
-
-                    if not target_authorized:
-                        raise WorkflowError(
-                            "Escalation target is not authorized"
-                        )
-
-                    if amount > remaining:
-                        raise WorkflowError(
-                            "Insufficient budget; an authorized "
-                            "approver must reject this expense"
-                        )
-
-                    outcome = "escalated"
-                    target_approver_id = responsible_id
-                    decision_comment = (
-                        f"Escalated to employee {responsible_id}"
-                    )
 
 
             # 6. Deduct budget only for approval.

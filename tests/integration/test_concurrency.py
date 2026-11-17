@@ -7,14 +7,14 @@ import pytest
 
 from app.database.postgres import get_connection
 from app.services.exceptions import BudgetConflict, WorkflowError
-from app.services.expense_workflow import process_expense
+from app.services.expense_workflow import approve_expense
 
 
 def attempt_approval(expense_id, approver_id, version, start_event):
     start_event.wait()
 
     try:
-        result = process_expense(
+        result = approve_expense(
             expense_id=expense_id,
             approver_id=approver_id,
             expected_version=version,
@@ -107,7 +107,7 @@ def attempt_shared_budget_approval(
     start_event.wait()
 
     try:
-        result = process_expense(
+        result = approve_expense(
             expense_id=expense_id,
             approver_id=approver_id,
             expected_version=version,

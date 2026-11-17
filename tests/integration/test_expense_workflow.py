@@ -5,10 +5,13 @@ import pytest
 import psycopg
 
 from app.database.postgres import get_connection
-from app.services.exceptions import WorkflowError
-from app.services.expense_workflow import process_expense
-from app.services.exceptions import BudgetConflict, WorkflowError
 import app.services.expense_workflow as workflow
+from app.services.exceptions import BudgetConflict, WorkflowError
+from app.services.expense_workflow import (
+    approve_expense,
+    escalate_expense,
+    reject_expense,
+)
 
 
 @pytest.mark.integration
@@ -32,7 +35,7 @@ def test_approval_rolls_back_when_decision_insert_fails(
     )
 
     with pytest.raises(psycopg.errors.ForeignKeyViolation):
-        workflow.process_expense(
+        workflow.approve_expense(
             expense_id=expense_id,
             approver_id=invalid_approver_id,
             expected_version=version,
@@ -81,7 +84,7 @@ def test_approval_and_duplicate_prevention(expense_scenario):
     initial_version = expense_scenario["version"]
 
     # First approval should succeed.
-    result = process_expense(
+    result = approve_expense(
         expense_id=expense_id,
         approver_id=approver_id,
         expected_version=initial_version,
@@ -131,7 +134,7 @@ def test_approval_and_duplicate_prevention(expense_scenario):
 
     # Repeated approval must fail.
     with pytest.raises(WorkflowError):
-        process_expense(
+        approve_expense(
             expense_id=expense_id,
             approver_id=approver_id,
             expected_version=version,
@@ -165,7 +168,7 @@ def test_approval_and_duplicate_prevention(expense_scenario):
 
 
 @pytest.mark.integration
-def test_rejection_for_insufficient_budget(expense_scenario):
+def test_explicit_rejection_of_over_budget_expense(expense_scenario):
     expense_id = expense_scenario["expense_id"]
     approver_id = expense_scenario["employee_id"]
     budget_id = expense_scenario["budget_id"]
@@ -182,10 +185,11 @@ def test_rejection_for_insufficient_budget(expense_scenario):
             (expense_id,),
         )
 
-    result = process_expense(
+    result = reject_expense(
         expense_id=expense_id,
         approver_id=approver_id,
         expected_version=initial_version,
+        reason="Insufficient remaining budget",
     )
 
     assert result["status"] == "rejected"
@@ -246,7 +250,7 @@ def test_stale_budget_version_blocks_approval(expense_scenario):
         )
 
     with pytest.raises(BudgetConflict):
-        process_expense(
+        approve_expense(
             expense_id=expense_id,
             approver_id=approver_id,
             expected_version=initial_version,
@@ -301,9 +305,9 @@ def test_escalation_and_assigned_approver(expense_scenario):
     version = expense_scenario["version"]
 
     # Bob has no authority; the expense must escalate.
-    result = process_expense(
+    result = escalate_expense(
         expense_id=expense_id,
-        approver_id=unauthorized_id,
+        employee_id=owner_id,
         expected_version=version,
     )
 
@@ -332,19 +336,43 @@ def test_escalation_and_assigned_approver(expense_scenario):
 
     assert budget == (Decimal("2000"), version)
     assert decisions == [
-        ("escalated", unauthorized_id, owner_id),
+        ("escalated", owner_id, owner_id)
     ]
 
     # Bob cannot complete an escalation assigned to Alice.
     with pytest.raises(WorkflowError):
-        process_expense(
+        approve_expense(
             expense_id=expense_id,
             approver_id=unauthorized_id,
             expected_version=version,
         )
 
+    
+    with get_connection() as conn:
+        current_status = conn.execute(
+            """
+            SELECT status
+            FROM expenses
+            WHERE id = %s
+            """,
+            (expense_id,),
+        ).fetchone()[0]
+
+        decision_count = conn.execute(
+            """
+            SELECT COUNT(*)
+            FROM decisions
+            WHERE expense_id = %s
+            """,
+            (expense_id,),
+        ).fetchone()[0]
+
+    assert current_status == "escalated"
+    assert decision_count == 1
+
+
     # Alice can complete the escalation.
-    result = process_expense(
+    result = approve_expense(
         expense_id=expense_id,
         approver_id=owner_id,
         expected_version=version,
@@ -388,6 +416,6 @@ def test_escalation_and_assigned_approver(expense_scenario):
     )
     assert status == "approved"
     assert decisions == [
-        ("escalated", unauthorized_id, owner_id),
+        ("escalated", owner_id, owner_id),
         ("approved", owner_id, None),
     ]
