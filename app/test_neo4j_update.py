@@ -30,7 +30,7 @@ def main():
                 MATCH (bob:Employee {employee_id: 2})
                 MERGE (alice)-[d:DERIVED_DELEGATION]->(bob)
                 SET d.scope = 'IT',
-                    d.amount_limit = 1000.00,
+                    d.amount_limit_cents: 100000,
                     d.valid_from = date('2026-01-01'),
                     d.valid_to = date('2026-12-31'),
                     d.source_id = $source_id,
