@@ -3,7 +3,7 @@ from psycopg.rows import dict_row
 
 from app.database.postgres import get_connection
 from app.services.authorization_service import (
-    is_authorized_approver,
+    get_authorized_expense_ids,
 )
 
 
@@ -55,17 +55,17 @@ def list_actionable_expenses(
 
             candidates = cur.fetchall()
 
-    # Filter all candidates before calculating page totals.
-    authorized = []
+    authorized_ids = get_authorized_expense_ids(
+        approver_id=approver_id,
+        candidates=candidates,
+    )
 
-    for expense in candidates:
-        if is_authorized_approver(
-            approver_id=approver_id,
-            cost_centre_id=expense["cost_centre_id"],
-            amount=expense["amount"],
-            expense_date=expense["expense_date"],
-        ):
-            authorized.append(expense)
+    authorized = [
+        expense
+        for expense in candidates
+        if expense["id"] in authorized_ids
+    ]
+
 
     return {
         "items": authorized[offset:offset + limit],

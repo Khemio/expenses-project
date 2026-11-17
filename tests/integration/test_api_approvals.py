@@ -130,3 +130,80 @@ def test_invalid_queue_pagination(client, auth_token, params):
     )
 
     assert response.status_code == 422
+
+
+
+def test_queue_pagination_after_authorization(
+    client, expense_scenario, auth_token
+):
+    s = expense_scenario
+
+    first_id = s["expense_id"]
+    second_id = s["create_expense"](
+        amount=100,
+        description="Second queued expense",
+    )
+    third_id = s["create_expense"](
+        amount=200,
+        description="Third queued expense",
+    )
+
+    response = client.get(
+        "/api/v1/approvals",
+        params={"limit": 1, "offset": 1},
+        headers=headers(auth_token),
+    )
+
+    assert response.status_code == 200
+
+    page = response.json()
+    assert page["total"] == 3
+    assert page["limit"] == 1
+    assert page["offset"] == 1
+    assert [item["id"] for item in page["items"]] == [
+        second_id
+    ]
+
+    assert first_id < second_id < third_id
+
+
+def test_queue_reflects_revoked_authority(
+    client, expense_scenario, auth_token
+):
+    from app.database.neo4j import get_driver
+
+    s = expense_scenario
+
+    before = client.get(
+        "/api/v1/approvals",
+        headers=headers(auth_token),
+    )
+
+    assert before.status_code == 200
+    assert s["expense_id"] in {
+        item["id"] for item in before.json()["items"]
+    }
+
+    # Remove the cost centre owner's authority.
+    with get_driver().session() as session:
+        session.run(
+            """
+            MATCH (e:Employee {
+                employee_id: $employee_id
+            })-[r:RESPONSIBLE_FOR]->(cc:CostCentre {
+                cost_centre_id: $cost_centre_id
+            })
+            DELETE r
+            """,
+            employee_id=s["employee_id"],
+            cost_centre_id=s["cost_centre_id"],
+        ).consume()
+
+    after = client.get(
+        "/api/v1/approvals",
+        headers=headers(auth_token),
+    )
+
+    assert after.status_code == 200
+    assert after.json()["items"] == []
+    assert after.json()["total"] == 0
