@@ -296,3 +296,47 @@ def auth_token(expense_scenario):
                     (hash_session_token(token),),
                 )
 
+
+@pytest.fixture
+def approval_handoff_scenario(expense_scenario):
+    """An expense submitted by someone other than its approver."""
+    s = expense_scenario
+
+    submitter_id = s["unauthorized_employee_id"]
+    approver_id = s["employee_id"]
+
+    with get_connection() as conn:
+        expense_id = conn.execute(
+            """
+            INSERT INTO expenses (
+                employee_id,
+                cost_centre_id,
+                budget_id,
+                amount,
+                description,
+                expense_date
+            )
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id
+            """,
+            (
+                submitter_id,
+                s["cost_centre_id"],
+                s["budget_id"],
+                350,
+                "Approval handoff fixture",
+                date(2026, 11, 9),
+            ),
+        ).fetchone()[0]
+
+    # Register with the parent fixture for cleanup.
+    s["track_expense"](expense_id)
+
+    return {
+        "expense_id": expense_id,
+        "submitter_id": submitter_id,
+        "approver_id": approver_id,
+        "budget_id": s["budget_id"],
+        "cost_centre_id": s["cost_centre_id"],
+        "version": s["version"],
+    }

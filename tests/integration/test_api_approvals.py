@@ -207,3 +207,43 @@ def test_queue_reflects_revoked_authority(
     assert after.status_code == 200
     assert after.json()["items"] == []
     assert after.json()["total"] == 0
+
+
+def test_handoff_expense_visible_to_approver(
+    client,
+    approval_handoff_scenario,
+):
+    s = approval_handoff_scenario
+
+    token = create_session(s["approver_id"])
+
+    try:
+        response = client.get(
+            "/api/v1/approvals",
+            headers=headers(token),
+        )
+
+        assert response.status_code == 200
+
+        items = response.json()["items"]
+        ids = {item["id"] for item in items}
+
+        assert s["expense_id"] in ids
+
+        expense = next(
+            item for item in items
+            if item["id"] == s["expense_id"]
+        )
+
+        assert expense["status"] == "pending"
+        assert expense["budget_version"] == s["version"]
+
+    finally:
+        with get_connection() as conn:
+            conn.execute(
+                """
+                DELETE FROM api_sessions
+                WHERE token_hash = %s
+                """,
+                (hash_session_token(token),),
+            )

@@ -15,62 +15,29 @@ from app.services.exceptions import (
 
 pytestmark = pytest.mark.integration
 
-
-@pytest.fixture
-def handoff_expense(expense_scenario):
-    s = expense_scenario
-
-    with get_connection() as conn:
-        expense_id = conn.execute(
-            """
-            INSERT INTO expenses (
-                employee_id,
-                cost_centre_id,
-                budget_id,
-                amount,
-                description,
-                expense_date
-            )
-            VALUES (%s, %s, %s, %s, %s, %s)
-            RETURNING id
-            """,
-            (
-                s["unauthorized_employee_id"],
-                s["cost_centre_id"],
-                s["budget_id"],
-                Decimal("350.00"),
-                "Approval handoff test",
-                "2026-11-17",
-            ),
-        ).fetchone()[0]
-
-    s["track_expense"](expense_id)
-    return expense_id
-
-
 def test_submitter_cannot_approve_own_expense(
-    expense_scenario,
-    handoff_expense,
+    approval_handoff_scenario,
 ):
-    s = expense_scenario
+    s = approval_handoff_scenario
 
     with pytest.raises(UnauthorizedApprover):
         approve_expense(
-            expense_id=handoff_expense,
-            approver_id=s["unauthorized_employee_id"],
+            expense_id=s['expense_id'],
+            approver_id=s["submitter_id"],
             expected_version=s["version"],
         )
 
 
+
+@pytest.mark.integration
 def test_responsible_employee_can_approve(
-    expense_scenario,
-    handoff_expense,
+    approval_handoff_scenario,
 ):
-    s = expense_scenario
+    s = approval_handoff_scenario
 
     result = approve_expense(
-        expense_id=handoff_expense,
-        approver_id=s["employee_id"],
+        expense_id=s["expense_id"],
+        approver_id=s["approver_id"],
         expected_version=s["version"],
     )
 
@@ -92,16 +59,17 @@ def test_responsible_employee_can_approve(
     )
 
 
-def test_escalation_handoff(
-    expense_scenario,
-    handoff_expense,
-):
-    s = expense_scenario
-    submitter_id = s["unauthorized_employee_id"]
-    approver_id = s["employee_id"]
 
+def test_escalation_handoff(
+    approval_handoff_scenario,
+):
+    s = approval_handoff_scenario
+
+    submitter_id = s["submitter_id"]
+    approver_id = s["approver_id"]
+    expense_id = s['expense_id']
     result = escalate_expense(
-        expense_id=handoff_expense,
+        expense_id=expense_id,
         employee_id=submitter_id,
         expected_version=s["version"],
     )
@@ -118,13 +86,13 @@ def test_escalation_handoff(
             ORDER BY id DESC
             LIMIT 1
             """,
-            (handoff_expense,),
+            (expense_id,),
         ).fetchone()
 
     assert decision == (submitter_id, approver_id)
 
     result = approve_expense(
-        expense_id=handoff_expense,
+        expense_id=expense_id,
         approver_id=approver_id,
         expected_version=s["version"],
     )
