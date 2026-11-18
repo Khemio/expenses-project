@@ -1,10 +1,16 @@
 
 from datetime import date
+from decimal import Decimal
 
 import pytest
 
 from app.database.neo4j import get_driver
+from app.services.money import to_cents
 from app.services.authorization_service import is_authorized_approver
+
+from app.services.authorization_service import (
+    get_authorized_expense_ids,
+)
 
 
 @pytest.fixture
@@ -23,7 +29,7 @@ def delegated_scenario(expense_scenario):
 
             CREATE (owner)-[:DELEGATED_TO {
                 scope: cc.name,
-                amount_limit: 1000.0,
+                amount_limit_cents: 100000,
                 valid_from: date('2026-01-01'),
                 valid_to: date('2026-12-31')
             }]->(delegate)
@@ -173,7 +179,7 @@ def test_multi_hop_delegation(
 
             CREATE (owner)-[:DELEGATED_TO {
                 scope: cc.name,
-                amount_limit: $first_limit,
+                amount_limit_cents: $first_limit_cents,
                 valid_from: '2026-01-01',
                 valid_to: $first_valid_to
             }]->(middle)
@@ -184,7 +190,7 @@ def test_multi_hop_delegation(
                     THEN cc.name
                     ELSE 'Other Cost Centre'
                 END,
-                amount_limit: $second_limit,
+                amount_limit_cents: $second_limit_cents,
                 valid_from: '2026-01-01',
                 valid_to: '2026-12-31'
             }]->(delegate)
@@ -193,8 +199,8 @@ def test_multi_hop_delegation(
             delegate_id=delegate_id,
             centre_id=centre_id,
             intermediate_id=intermediate_id,
-            first_limit=first_limit,
-            second_limit=second_limit,
+            first_limit_cents=to_cents(first_limit),
+            second_limit_cents=to_cents(second_limit),
             first_valid_to=first_valid_to,
             second_scope_valid=second_scope_valid,
         ).consume()
@@ -210,3 +216,50 @@ def test_multi_hop_delegation(
 
     assert actual is expected
 
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "amount, expected",
+    [
+        ("999.99", True),
+        ("1000.00", True),
+        ("1000.01", False),
+        ("1000.02", False),
+    ],
+)
+def test_delegation_monetary_boundaries(
+    delegated_scenario,
+    amount,
+    expected,
+):
+    s = delegated_scenario
+    delegate_id = s["unauthorized_employee_id"]
+    centre_id = s["cost_centre_id"]
+    expense_date = date(2026, 11, 9)
+    decimal_amount = Decimal(amount)
+
+    single_result = is_authorized_approver(
+        approver_id=delegate_id,
+        cost_centre_id=centre_id,
+        amount=decimal_amount,
+        expense_date=expense_date,
+    )
+
+    candidate = {
+        "id": s["expense_id"],
+        "employee_id": s["employee_id"],
+        "cost_centre_id": centre_id,
+        "amount": decimal_amount,
+        "expense_date": expense_date,
+    }
+
+    batch_result = get_authorized_expense_ids(
+        approver_id=delegate_id,
+        candidates=[candidate],
+    )
+
+    assert single_result is expected
+    assert (
+        s["expense_id"] in batch_result
+    ) is expected

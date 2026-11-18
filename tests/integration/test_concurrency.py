@@ -2,19 +2,20 @@
 from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
 from threading import Event
+from datetime import date
 
 import pytest
 
 from app.database.postgres import get_connection
 from app.services.exceptions import BudgetConflict, WorkflowError
-from app.services.expense_workflow import process_expense
+from app.services.expense_workflow import approve_expense
 
 
 def attempt_approval(expense_id, approver_id, version, start_event):
     start_event.wait()
 
     try:
-        result = process_expense(
+        result = approve_expense(
             expense_id=expense_id,
             approver_id=approver_id,
             expected_version=version,
@@ -26,11 +27,11 @@ def attempt_approval(expense_id, approver_id, version, start_event):
 
 
 @pytest.mark.integration
-def test_concurrent_approval_of_same_expense(expense_scenario):
-    expense_id = expense_scenario["expense_id"]
-    approver_id = expense_scenario["employee_id"]
-    budget_id = expense_scenario["budget_id"]
-    initial_version = expense_scenario["version"]
+def test_concurrent_approval_of_same_expense(decision_scenario):
+    expense_id = decision_scenario["expense_id"]
+    approver_id = decision_scenario["employee_id"]
+    budget_id = decision_scenario["budget_id"]
+    initial_version = decision_scenario["version"]
 
     start_event = Event()
 
@@ -107,7 +108,7 @@ def attempt_shared_budget_approval(
     start_event.wait()
 
     try:
-        result = process_expense(
+        result = approve_expense(
             expense_id=expense_id,
             approver_id=approver_id,
             expected_version=version,
@@ -119,17 +120,19 @@ def attempt_shared_budget_approval(
 
 
 @pytest.mark.integration
-def test_concurrent_expenses_sharing_budget(expense_scenario):
-    first_expense_id = expense_scenario["expense_id"]
-    employee_id = expense_scenario["employee_id"]
-    cost_centre_id = expense_scenario["cost_centre_id"]
-    budget_id = expense_scenario["budget_id"]
-    initial_version = expense_scenario["version"]
+def test_concurrent_expenses_sharing_budget(decision_scenario):
+    first_expense_id = decision_scenario["expense_id"]
+    employee_id = decision_scenario["employee_id"]
+    cost_centre_id = decision_scenario["cost_centre_id"]
+    budget_id = decision_scenario["budget_id"]
+    initial_version = decision_scenario["version"]
 
-    second_expense_id = expense_scenario["create_expense"](
+    second_expense_id = decision_scenario["create_expense"](
         amount=700,
         description="Second concurrent expense",
+        employee_id=decision_scenario["submitter_id"],
     )
+
 
     with get_connection() as conn:
         conn.execute(

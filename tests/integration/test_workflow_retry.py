@@ -1,24 +1,29 @@
 
 from decimal import Decimal
+from datetime import date
 
 import pytest
 
 from app.database.postgres import get_connection
-from app.services.expense_workflow import process_expense
-from app.services.workflow_retry import process_expense_with_retry
+
+from app.services.exceptions import WorkflowError
+from app.services.expense_workflow import approve_expense
+from app.services.workflow_retry import approve_expense_with_retry
 
 
 @pytest.mark.integration
-def test_budget_conflict_retry_reevaluates_expense(expense_scenario):
-    first_expense_id = expense_scenario["expense_id"]
-    approver_id = expense_scenario["employee_id"]
-    budget_id = expense_scenario["budget_id"]
-    initial_version = expense_scenario["version"]
+def test_budget_conflict_retry_reevaluates_expense(decision_scenario):
+    first_expense_id = decision_scenario["expense_id"]
+    approver_id = decision_scenario["employee_id"]
+    budget_id = decision_scenario["budget_id"]
+    initial_version = decision_scenario["version"]
 
-    second_expense_id = expense_scenario["create_expense"](
+    second_expense_id = decision_scenario["create_expense"](
         amount=700,
         description="Expense requiring budget reevaluation",
+        employee_id=decision_scenario["submitter_id"],
     )
+
 
     # Start with 1000 EUR shared by two 700 EUR expenses.
     with get_connection() as conn:
@@ -32,7 +37,8 @@ def test_budget_conflict_retry_reevaluates_expense(expense_scenario):
         )
 
     # First expense consumes 700 EUR.
-    first_result = process_expense(
+
+    first_result = approve_expense(
         expense_id=first_expense_id,
         approver_id=approver_id,
         expected_version=initial_version,
@@ -42,14 +48,17 @@ def test_budget_conflict_retry_reevaluates_expense(expense_scenario):
 
     # Second request still has the old budget version.
     # Retry should reload the version and reevaluate.
-    second_result = process_expense_with_retry(
-        expense_id=second_expense_id,
-        approver_id=approver_id,
-        expected_version=initial_version,
-        max_attempts=3,
-    )
 
-    assert second_result["status"] == "rejected"
+    with pytest.raises(
+        WorkflowError,
+        match="Insufficient budget",
+    ):
+        approve_expense_with_retry(
+            expense_id=second_expense_id,
+            approver_id=approver_id,
+            expected_version=initial_version,
+            max_attempts=3,
+        )
 
     with get_connection() as conn:
         budget = conn.execute(
@@ -89,10 +98,9 @@ def test_budget_conflict_retry_reevaluates_expense(expense_scenario):
 
     assert expenses == {
         first_expense_id: "approved",
-        second_expense_id: "rejected",
+        second_expense_id: "pending",
     }
 
     assert decisions == [
         (first_expense_id, "approved"),
-        (second_expense_id, "rejected"),
     ]

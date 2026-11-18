@@ -12,7 +12,10 @@ import pytest
 from app.database.neo4j import get_driver
 from app.database.postgres import get_connection
 from tests.integration.factories import ExpenseFactory
-
+from app.services.auth_sessions import (
+    create_session,
+    hash_session_token,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -66,7 +69,6 @@ def require_test_databases():
 
     if settings.qdrant_url != "http://127.0.0.1:56333":
         pytest.fail("Unsafe Qdrant test configuration")
-
 
 
 @pytest.fixture
@@ -215,6 +217,7 @@ def expense_scenario():
             "cost_centre_id": cost_centre_id,
             "version": version,
             "create_expense": expense_factory.create,
+            "track_expense": expense_factory.track,
         }
 
 
@@ -273,3 +276,107 @@ def expense_scenario():
                             (cost_centre_id,),
                         )
 
+
+@pytest.fixture
+def auth_token(expense_scenario):
+    employee_id = expense_scenario["employee_id"]
+
+    token = create_session(employee_id)
+
+    try:
+        yield token
+    finally:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    DELETE FROM api_sessions
+                    WHERE token_hash = %s
+                    """,
+                    (hash_session_token(token),),
+                )
+
+
+@pytest.fixture
+def approval_handoff_scenario(expense_scenario):
+    """An expense submitted by someone other than its approver."""
+    s = expense_scenario
+
+    submitter_id = s["unauthorized_employee_id"]
+    approver_id = s["employee_id"]
+
+    with get_connection() as conn:
+        expense_id = conn.execute(
+            """
+            INSERT INTO expenses (
+                employee_id,
+                cost_centre_id,
+                budget_id,
+                amount,
+                description,
+                expense_date
+            )
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id
+            """,
+            (
+                submitter_id,
+                s["cost_centre_id"],
+                s["budget_id"],
+                350,
+                "Approval handoff fixture",
+                date(2026, 11, 9),
+            ),
+        ).fetchone()[0]
+
+    # Register with the parent fixture for cleanup.
+    s["track_expense"](expense_id)
+
+    return {
+        "expense_id": expense_id,
+        "submitter_id": submitter_id,
+        "approver_id": approver_id,
+        "budget_id": s["budget_id"],
+        "cost_centre_id": s["cost_centre_id"],
+        "version": s["version"],
+    }
+
+
+
+@pytest.fixture
+def decision_scenario(expense_scenario):
+    """A 700 EUR expense with separate submitter and approver."""
+    s = expense_scenario
+
+    with get_connection() as conn:
+        expense_id = conn.execute(
+            """
+            INSERT INTO expenses (
+                employee_id,
+                cost_centre_id,
+                budget_id,
+                amount,
+                description,
+                expense_date
+            )
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id
+            """,
+            (
+                s["unauthorized_employee_id"],
+                s["cost_centre_id"],
+                s["budget_id"],
+                700,
+                "Decision workflow test expense",
+                date(2026, 11, 9),
+            ),
+        ).fetchone()[0]
+
+    s["track_expense"](expense_id)
+
+    return {
+        **s,
+        "expense_id": expense_id,
+        "submitter_id": s["unauthorized_employee_id"],
+        "approver_id": s["employee_id"],
+    }

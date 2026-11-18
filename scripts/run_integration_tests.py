@@ -156,6 +156,9 @@ def verify_test_cleanup() -> bool:
             cur.execute("SELECT COUNT(*) FROM vector_documents")
             postgres_vectors_remaining = cur.fetchone()[0]
 
+            cur.execute("SELECT COUNT(*) FROM api_sessions")
+            postgres_sessions_remaining = cur.fetchone()[0]
+
     # Verify Neo4j cleanup.
     driver = GraphDatabase.driver(
         "bolt://127.0.0.1:57687",
@@ -234,6 +237,7 @@ def verify_test_cleanup() -> bool:
     print("Redis keys:", redis_remaining)
     print("Qdrant vector points:", qdrant_remaining)
     print("Postgres vector points:", postgres_vectors_remaining)
+    print("PostgreSQL API sessions:", postgres_sessions_remaining)
 
     if any((
         postgres_remaining != 0,
@@ -242,12 +246,33 @@ def verify_test_cleanup() -> bool:
         redis_remaining != 0,
         qdrant_remaining != 0,
         postgres_vectors_remaining != 0,
+        postgres_sessions_remaining != 0,
     )):
         print("FAILED: Integration tests left records behind.")
         return False
 
     print("SUCCESS: No test scenario records remain.")
     return True
+
+
+
+def initialize_auth_schema():
+    """Apply the idempotent authentication schema."""
+    migration_path = (
+        ROOT
+        / "app"
+        / "database"
+        / "migrations"
+        / "001_api_sessions.sql"
+    )
+
+    with psycopg.connect(TEST_DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                migration_path.read_text(encoding="utf-8")
+            )
+
+    print("Authentication schema ready.")
 
 
 
@@ -280,6 +305,7 @@ def main():
     try:
         verify_test_environment()
         initialize_database()
+        initialize_auth_schema()
     except Exception as error:
         print(f"FAILED: Test environment preparation: {error}")
         return 1
