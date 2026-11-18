@@ -18,7 +18,7 @@ The FastAPI application sits in front of the relational workflow and graph autho
 
 **Authorization rules:** An employee cannot approve or reject their own expense. Ordinary authority is based on `RESPONSIBLE_FOR` and bounded `DELEGATED_TO` paths. The distinct `REVIEWER_FOR` path applies to a cost-centre owner's own expenses. Escalations assign a specific eligible reviewer; revocation is rechecked before completion. The approver queue performs authorization before pagination.
 
-See [architecture and workflow notes](docs/ARCHITECTURE.md) and the [database diagram](schema.md).
+See [architecture and workflow notes](docs/ARCHITECTURE.md) and the [current data model](docs/SCHEMA.md).
 
 ## What the API currently exposes
 
@@ -105,6 +105,7 @@ The test runner checks the database identities before running, applies the test 
 - `tests/unit/` and `tests/integration/` — behavior, security and data-store tests
 - `scripts/run_integration_tests.py` — isolated integration test runner with cleanup verification
 - `data/` — example datasets used for database/vector experiments
+- `docs/` — current references and archived coursework materials
 
 ## Current limitations
 
@@ -116,4 +117,4 @@ The test runner checks the database identities before running, applies the test 
 
 ## Background
 
-This project began as a multi-database data-management exercise and evolved into a tested expense-approval backend. The [technical report](expense_approval_technical_report.pdf) documents the earlier database-focused work; the current API and authorization code evolved further, so treat that report as background rather than a complete description of the latest backend.
+This project began as a multi-database data-management exercise and evolved into a tested expense-approval backend. The [coursework archive](docs/coursework/README.md) preserves the original [technical report](docs/coursework/expense_approval_technical_report.pdf) and exported diagram. These reflect an earlier phase of the project; use the current README, architecture notes and schema for the evolving backend.
