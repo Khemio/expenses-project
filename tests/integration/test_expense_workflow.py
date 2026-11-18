@@ -30,9 +30,10 @@ def test_approval_rolls_back_when_decision_insert_fails(
     # the PostgreSQL decision insertion.
     monkeypatch.setattr(
         workflow,
-        "is_authorized_approver",
+        "is_authorized_for_expense",
         lambda **kwargs: True,
     )
+
 
     with pytest.raises(psycopg.errors.ForeignKeyViolation):
         workflow.approve_expense(

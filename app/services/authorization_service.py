@@ -5,6 +5,9 @@ from collections.abc import Sequence
 
 from app.database.neo4j import get_driver
 from app.services.money import to_cents
+from app.services.reviewer_service import (
+    find_independent_reviewer,
+)
 
 def is_authorized_approver(
     approver_id: int,
@@ -111,3 +114,37 @@ def get_authorized_expense_ids(
             )
 
     return authorized_ids
+
+
+
+def is_authorized_for_expense(
+    *,
+    approver_id: int,
+    submitter_id: int,
+    cost_centre_id: int,
+    amount,
+    expense_date: date,
+) -> bool:
+    """Check ordinary and independent-reviewer authority."""
+
+    # Separation of duties applies to both paths.
+    if approver_id == submitter_id:
+        return False
+
+    # Ordinary responsibility/delegation remains valid.
+    if is_authorized_approver(
+        approver_id=approver_id,
+        cost_centre_id=cost_centre_id,
+        amount=amount,
+        expense_date=expense_date,
+    ):
+        return True
+
+    # Special authority for expenses submitted by
+    # the responsible cost-centre owner.
+    reviewer_id = find_independent_reviewer(
+        cost_centre_id=cost_centre_id,
+        submitter_id=submitter_id,
+    )
+
+    return reviewer_id == approver_id

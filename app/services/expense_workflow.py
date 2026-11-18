@@ -8,7 +8,10 @@ from app.services.exceptions import (
     UnauthorizedApprover,
     SelfApprovalForbidden
 )
-from app.services.authorization_service import is_authorized_approver
+from app.services.authorization_service import (
+    is_authorized_approver,
+    is_authorized_for_expense,
+)
 from app.services.escalation_service import find_responsible_approver
 from app.database.postgres import get_connection
 
@@ -103,10 +106,10 @@ def process_expense(
             if budget is None:
                 raise WorkflowError("Budget not found")
 
-            if action not in (
-                "automatic", "approve", "reject", "escalate"
-            ):
-                raise ValueError("Unsupported workflow action")
+            # if action not in (
+            #     "automatic", "approve", "reject", "escalate"
+            # ):
+            #     raise ValueError("Unsupported workflow action")
 
             remaining, version, budget_cost_centre_id = budget
 
@@ -121,12 +124,23 @@ def process_expense(
                 )
 
             # 3. Check authority using the actual Neo4j graph.
-            authorized = is_authorized_approver(
-                approver_id=approver_id,
-                cost_centre_id=cost_centre_id,
-                amount=amount,
-                expense_date=expense_date,
-            )
+                        
+            if action in ("approve", "reject"):
+                authorized = is_authorized_for_expense(
+                    approver_id=approver_id,
+                    submitter_id=submitter_id,
+                    cost_centre_id=cost_centre_id,
+                    amount=amount,
+                    expense_date=expense_date,
+                )
+            else:
+                authorized = is_authorized_approver(
+                    approver_id=approver_id,
+                    cost_centre_id=cost_centre_id,
+                    amount=amount,
+                    expense_date=expense_date,
+                )
+
 
             # 4. An escalated expense must be handled by
             # the directly responsible employee.
