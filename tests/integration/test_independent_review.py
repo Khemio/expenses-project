@@ -2,6 +2,8 @@
 from decimal import Decimal
 
 import pytest
+from datetime import date
+from uuid import uuid4
 
 from app.database.neo4j import get_driver
 from app.database.postgres import get_connection
@@ -11,7 +13,10 @@ from app.services.expense_workflow import (
     escalate_expense,
     reject_expense,
 )
-
+from app.services.authorization_service import (
+    is_authorized_for_expense,
+    get_authorized_expense_ids,
+)
 
 pytestmark = pytest.mark.integration
 
@@ -360,3 +365,115 @@ def test_ambiguous_reviewers_fail_closed(
     )
 
     assert s["expense_id"] not in authorized_ids
+
+
+
+def test_independent_reviewer_cannot_approve_regular_employee(
+    expense_scenario,
+):
+    s = expense_scenario
+
+    owner_id = s["employee_id"]
+    reviewer_id = s["unauthorized_employee_id"]
+    regular_employee_id = None
+    expense_id = None
+
+    assign_reviewer(s)
+
+    try:
+        # Create a third employee in the same cost centre.
+        with get_connection() as conn:
+            regular_employee_id = conn.execute(
+                """
+                INSERT INTO employees (
+                    name, email, cost_centre_id
+                )
+                VALUES (%s, %s, %s)
+                RETURNING id
+                """,
+                (
+                    "Regular Test Employee",
+                    f"regular-{uuid4().hex}@example.test",
+                    s["cost_centre_id"],
+                ),
+            ).fetchone()[0]
+
+        # Create an expense belonging to that employee.
+        expense_id = s["create_expense"](
+            amount=250,
+            description="Regular employee expense",
+            employee_id=regular_employee_id,
+        )
+
+        expense_date = date(2026, 11, 9)
+
+        # The ordinary owner remains authorized.
+        assert is_authorized_for_expense(
+            approver_id=owner_id,
+            submitter_id=regular_employee_id,
+            cost_centre_id=s["cost_centre_id"],
+            amount=Decimal("250"),
+            expense_date=expense_date,
+        )
+
+        # REVIEWER_FOR alone must not authorize Bob.
+        assert not is_authorized_for_expense(
+            approver_id=reviewer_id,
+            submitter_id=regular_employee_id,
+            cost_centre_id=s["cost_centre_id"],
+            amount=Decimal("250"),
+            expense_date=expense_date,
+        )
+
+        candidate = {
+            "id": expense_id,
+            "employee_id": regular_employee_id,
+            "cost_centre_id": s["cost_centre_id"],
+            "amount": Decimal("250"),
+            "expense_date": expense_date,
+        }
+
+        assert expense_id not in get_authorized_expense_ids(
+            approver_id=reviewer_id,
+            candidates=[candidate],
+        )
+
+        # The actual workflow must reject the decision.
+        with pytest.raises(UnauthorizedApprover):
+            approve_expense(
+                expense_id=expense_id,
+                approver_id=reviewer_id,
+                expected_version=s["version"],
+            )
+
+        with get_connection() as conn:
+            status = conn.execute(
+                """
+                SELECT status
+                FROM expenses
+                WHERE id = %s
+                """,
+                (expense_id,),
+            ).fetchone()[0]
+
+        assert status == "pending"
+
+    finally:
+        # The factory tracks the expense, but this employee
+        # must be removed before the parent fixture tears down.
+        with get_connection() as conn:
+            if expense_id is not None:
+                conn.execute(
+                    "DELETE FROM decisions WHERE expense_id = %s",
+                    (expense_id,),
+                )
+                conn.execute(
+                    "DELETE FROM expenses WHERE id = %s",
+                    (expense_id,),
+                )
+
+            if regular_employee_id is not None:
+                conn.execute(
+                    "DELETE FROM employees WHERE id = %s",
+                    (regular_employee_id,),
+                )
