@@ -226,3 +226,137 @@ def test_owner_cannot_escalate_without_reviewer(
 
     assert status == "pending"
     assert decision_count == 0
+
+
+
+def test_revoked_reviewer_cannot_complete_escalation(
+    expense_scenario,
+):
+    s = expense_scenario
+    reviewer_id = s["unauthorized_employee_id"]
+
+    assign_reviewer(s)
+
+    escalate_expense(
+        expense_id=s["expense_id"],
+        employee_id=s["employee_id"],
+        expected_version=s["version"],
+    )
+
+    # Revoke reviewer authority after assignment.
+    with get_driver().session() as session:
+        session.run(
+            """
+            MATCH (reviewer:Employee {
+                employee_id: $reviewer_id
+            })-[r:REVIEWER_FOR]->
+            (cc:CostCentre {
+                cost_centre_id: $cost_centre_id
+            })
+            DELETE r
+            """,
+            reviewer_id=reviewer_id,
+            cost_centre_id=s["cost_centre_id"],
+        ).consume()
+
+    with pytest.raises(
+        WorkflowError,
+        match="Assigned approver no longer has authority",
+    ):
+        approve_expense(
+            expense_id=s["expense_id"],
+            approver_id=reviewer_id,
+            expected_version=s["version"],
+        )
+
+    with get_connection() as conn:
+        status = conn.execute(
+            """
+            SELECT status FROM expenses WHERE id = %s
+            """,
+            (s["expense_id"],),
+        ).fetchone()[0]
+
+        budget = conn.execute(
+            """
+            SELECT remaining, version
+            FROM budgets WHERE id = %s
+            """,
+            (s["budget_id"],),
+        ).fetchone()
+
+        decisions = conn.execute(
+            """
+            SELECT decision
+            FROM decisions
+            WHERE expense_id = %s
+            ORDER BY id
+            """,
+            (s["expense_id"],),
+        ).fetchall()
+
+    assert status == "escalated"
+    assert budget == (Decimal("2000"), s["version"])
+    assert decisions == [("escalated",)]
+
+
+
+from app.services.reviewer_service import (
+    ReviewerConfigurationError,
+)
+
+
+def test_ambiguous_reviewers_fail_closed(
+    expense_scenario,
+):
+    s = expense_scenario
+    reviewer_id = s["unauthorized_employee_id"]
+
+    assign_reviewer(s)
+
+    # Add a conflicting reviewer assignment.
+    with get_driver().session() as session:
+        session.run(
+            """
+            MATCH (owner:Employee {
+                employee_id: $owner_id
+            })
+            MATCH (cc:CostCentre {
+                cost_centre_id: $cost_centre_id
+            })
+            CREATE (owner)-[:REVIEWER_FOR]->(cc)
+            """,
+            owner_id=s["employee_id"],
+            cost_centre_id=s["cost_centre_id"],
+        ).consume()
+
+    # The single-expense authorization path
+    # must not grant independent-review authority.
+    with pytest.raises(ReviewerConfigurationError):
+        approve_expense(
+            expense_id=s["expense_id"],
+            approver_id=reviewer_id,
+            expected_version=s["version"],
+        )
+
+    # The batched authorization path must also
+    # exclude the expense.
+    from app.services.authorization_service import (
+        get_authorized_expense_ids,
+    )
+    from datetime import date
+
+    candidate = {
+        "id": s["expense_id"],
+        "employee_id": s["employee_id"],
+        "cost_centre_id": s["cost_centre_id"],
+        "amount": Decimal("700"),
+        "expense_date": date(2026, 11, 9),
+    }
+
+    authorized_ids = get_authorized_expense_ids(
+        approver_id=reviewer_id,
+        candidates=[candidate],
+    )
+
+    assert s["expense_id"] not in authorized_ids
