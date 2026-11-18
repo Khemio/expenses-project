@@ -134,7 +134,6 @@ def test_invalid_queue_pagination(client, auth_token, params):
 
 
 
-
 def test_queue_pagination_after_authorization(
     client, decision_scenario, auth_token
 ):
@@ -142,55 +141,17 @@ def test_queue_pagination_after_authorization(
 
     first_id = s["expense_id"]
 
-    with get_connection() as conn:
-        second_id = conn.execute(
-            """
-            INSERT INTO expenses (
-                employee_id,
-                cost_centre_id,
-                budget_id,
-                amount,
-                description,
-                expense_date
-            )
-            VALUES (%s, %s, %s, %s, %s, %s)
-            RETURNING id
-            """,
-            (
-                s["submitter_id"],
-                s["cost_centre_id"],
-                s["budget_id"],
-                100,
-                "Second queued expense",
-                date(2026, 11, 9),
-            ),
-        ).fetchone()[0]
+    second_id = decision_scenario["create_expense"](
+        amount=100,
+        description="Second queued expense",
+        employee_id=decision_scenario["submitter_id"],
+    )
 
-        third_id = conn.execute(
-            """
-            INSERT INTO expenses (
-                employee_id,
-                cost_centre_id,
-                budget_id,
-                amount,
-                description,
-                expense_date
-            )
-            VALUES (%s, %s, %s, %s, %s, %s)
-            RETURNING id
-            """,
-            (
-                s["submitter_id"],
-                s["cost_centre_id"],
-                s["budget_id"],
-                200,
-                "Third queued expense",
-                date(2026, 11, 9),
-            ),
-        ).fetchone()[0]
-
-    s["track_expense"](second_id)
-    s["track_expense"](third_id)
+    third_id = decision_scenario["create_expense"](
+        amount=200,
+        description="Third queued expense",
+        employee_id=decision_scenario["submitter_id"],
+    )
 
     response = client.get(
         "/api/v1/approvals",

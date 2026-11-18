@@ -127,32 +127,11 @@ def test_concurrent_expenses_sharing_budget(decision_scenario):
     budget_id = decision_scenario["budget_id"]
     initial_version = decision_scenario["version"]
 
-    
-    with get_connection() as conn:
-        second_expense_id = conn.execute(
-            """
-            INSERT INTO expenses (
-                employee_id,
-                cost_centre_id,
-                budget_id,
-                amount,
-                description,
-                expense_date
-            )
-            VALUES (%s, %s, %s, %s, %s, %s)
-            RETURNING id
-            """,
-            (
-                decision_scenario["submitter_id"],
-                cost_centre_id,
-                budget_id,
-                700,
-                "Second concurrent expense",
-                date(2026, 11, 9),
-            ),
-        ).fetchone()[0]
-
-    decision_scenario["track_expense"](second_expense_id)
+    second_expense_id = decision_scenario["create_expense"](
+        amount=700,
+        description="Second concurrent expense",
+        employee_id=decision_scenario["submitter_id"],
+    )
 
 
     with get_connection() as conn:

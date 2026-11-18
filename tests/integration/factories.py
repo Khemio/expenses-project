@@ -27,6 +27,7 @@ class ExpenseFactory:
         amount=700,
         description="Integration test expense",
         expense_date=date(2026, 11, 9),
+        employee_id: int | None = None,
     ) -> int:
         """Create another expense using the scenario's budget."""
 
@@ -46,7 +47,7 @@ class ExpenseFactory:
                     RETURNING id
                     """,
                     (
-                        self.employee_id,
+                        self.employee_id if employee_id is None else employee_id,
                         self.cost_centre_id,
                         self.budget_id,
                         amount,
