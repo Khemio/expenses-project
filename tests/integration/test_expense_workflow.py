@@ -16,12 +16,12 @@ from app.services.expense_workflow import (
 
 @pytest.mark.integration
 def test_approval_rolls_back_when_decision_insert_fails(
-    expense_scenario,
+    decision_scenario,
     monkeypatch,
 ):
-    expense_id = expense_scenario["expense_id"]
-    budget_id = expense_scenario["budget_id"]
-    version = expense_scenario["version"]
+    expense_id = decision_scenario["expense_id"]
+    budget_id = decision_scenario["budget_id"]
+    version = decision_scenario["version"]
 
     # Choose an approver ID that must not exist.
     invalid_approver_id = -999
@@ -77,11 +77,11 @@ def test_approval_rolls_back_when_decision_insert_fails(
 
 
 @pytest.mark.integration
-def test_approval_and_duplicate_prevention(expense_scenario):
-    expense_id = expense_scenario["expense_id"]
-    approver_id = expense_scenario["employee_id"]
-    budget_id = expense_scenario["budget_id"]
-    initial_version = expense_scenario["version"]
+def test_approval_and_duplicate_prevention(decision_scenario):
+    expense_id = decision_scenario["expense_id"]
+    approver_id = decision_scenario["employee_id"]
+    budget_id = decision_scenario["budget_id"]
+    initial_version = decision_scenario["version"]
 
     # First approval should succeed.
     result = approve_expense(
@@ -168,11 +168,11 @@ def test_approval_and_duplicate_prevention(expense_scenario):
 
 
 @pytest.mark.integration
-def test_explicit_rejection_of_over_budget_expense(expense_scenario):
-    expense_id = expense_scenario["expense_id"]
-    approver_id = expense_scenario["employee_id"]
-    budget_id = expense_scenario["budget_id"]
-    initial_version = expense_scenario["version"]
+def test_explicit_rejection_of_over_budget_expense(decision_scenario):
+    expense_id = decision_scenario["expense_id"]
+    approver_id = decision_scenario["employee_id"]
+    budget_id = decision_scenario["budget_id"]
+    initial_version = decision_scenario["version"]
 
     # Increase the expense amount beyond the available budget.
     with get_connection() as conn:
@@ -232,11 +232,11 @@ def test_explicit_rejection_of_over_budget_expense(expense_scenario):
 
 
 @pytest.mark.integration
-def test_stale_budget_version_blocks_approval(expense_scenario):
-    expense_id = expense_scenario["expense_id"]
-    approver_id = expense_scenario["employee_id"]
-    budget_id = expense_scenario["budget_id"]
-    initial_version = expense_scenario["version"]
+def test_stale_budget_version_blocks_approval(decision_scenario):
+    expense_id = decision_scenario["expense_id"]
+    approver_id = decision_scenario["employee_id"]
+    budget_id = decision_scenario["budget_id"]
+    initial_version = decision_scenario["version"]
 
     # Simulate a concurrent budget modification.
     with get_connection() as conn:
@@ -295,19 +295,20 @@ def test_stale_budget_version_blocks_approval(expense_scenario):
 
 
 @pytest.mark.integration
-def test_escalation_and_assigned_approver(expense_scenario):
-    expense_id = expense_scenario["expense_id"]
-    owner_id = expense_scenario["employee_id"]
-    unauthorized_id = expense_scenario[
-        "unauthorized_employee_id"
-    ]
-    budget_id = expense_scenario["budget_id"]
-    version = expense_scenario["version"]
+def test_escalation_and_assigned_approver(decision_scenario):
+    s = decision_scenario
+
+    expense_id = s["expense_id"]
+    submitter_id = s["submitter_id"]
+    owner_id = s["approver_id"]
+    unauthorized_id = submitter_id
+    budget_id = s["budget_id"]
+    version = s["version"]
 
     # Bob has no authority; the expense must escalate.
     result = escalate_expense(
         expense_id=expense_id,
-        employee_id=owner_id,
+        employee_id=submitter_id,
         expected_version=version,
     )
 
@@ -336,7 +337,7 @@ def test_escalation_and_assigned_approver(expense_scenario):
 
     assert budget == (Decimal("2000"), version)
     assert decisions == [
-        ("escalated", owner_id, owner_id)
+        ("escalated", submitter_id, owner_id),
     ]
 
     # Bob cannot complete an escalation assigned to Alice.
@@ -416,6 +417,6 @@ def test_escalation_and_assigned_approver(expense_scenario):
     )
     assert status == "approved"
     assert decisions == [
-        ("escalated", owner_id, owner_id),
+        ("escalated", submitter_id, owner_id),
         ("approved", owner_id, None),
     ]

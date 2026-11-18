@@ -2,6 +2,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
 from threading import Event
+from datetime import date
 
 import pytest
 
@@ -26,11 +27,11 @@ def attempt_approval(expense_id, approver_id, version, start_event):
 
 
 @pytest.mark.integration
-def test_concurrent_approval_of_same_expense(expense_scenario):
-    expense_id = expense_scenario["expense_id"]
-    approver_id = expense_scenario["employee_id"]
-    budget_id = expense_scenario["budget_id"]
-    initial_version = expense_scenario["version"]
+def test_concurrent_approval_of_same_expense(decision_scenario):
+    expense_id = decision_scenario["expense_id"]
+    approver_id = decision_scenario["employee_id"]
+    budget_id = decision_scenario["budget_id"]
+    initial_version = decision_scenario["version"]
 
     start_event = Event()
 
@@ -119,17 +120,40 @@ def attempt_shared_budget_approval(
 
 
 @pytest.mark.integration
-def test_concurrent_expenses_sharing_budget(expense_scenario):
-    first_expense_id = expense_scenario["expense_id"]
-    employee_id = expense_scenario["employee_id"]
-    cost_centre_id = expense_scenario["cost_centre_id"]
-    budget_id = expense_scenario["budget_id"]
-    initial_version = expense_scenario["version"]
+def test_concurrent_expenses_sharing_budget(decision_scenario):
+    first_expense_id = decision_scenario["expense_id"]
+    employee_id = decision_scenario["employee_id"]
+    cost_centre_id = decision_scenario["cost_centre_id"]
+    budget_id = decision_scenario["budget_id"]
+    initial_version = decision_scenario["version"]
 
-    second_expense_id = expense_scenario["create_expense"](
-        amount=700,
-        description="Second concurrent expense",
-    )
+    
+    with get_connection() as conn:
+        second_expense_id = conn.execute(
+            """
+            INSERT INTO expenses (
+                employee_id,
+                cost_centre_id,
+                budget_id,
+                amount,
+                description,
+                expense_date
+            )
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id
+            """,
+            (
+                decision_scenario["submitter_id"],
+                cost_centre_id,
+                budget_id,
+                700,
+                "Second concurrent expense",
+                date(2026, 11, 9),
+            ),
+        ).fetchone()[0]
+
+    decision_scenario["track_expense"](second_expense_id)
+
 
     with get_connection() as conn:
         conn.execute(

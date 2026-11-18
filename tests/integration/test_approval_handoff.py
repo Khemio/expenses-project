@@ -99,3 +99,39 @@ def test_escalation_handoff(
 
     assert result["status"] == "approved"
     assert result["previous_status"] == "escalated"
+
+
+
+@pytest.mark.integration
+def test_responsible_approver_cannot_approve_own_expense(
+    expense_scenario,
+):
+    from app.services.exceptions import SelfApprovalForbidden
+
+    s = expense_scenario
+
+    with pytest.raises(SelfApprovalForbidden):
+        approve_expense(
+            expense_id=s["expense_id"],
+            approver_id=s["employee_id"],
+            expected_version=s["version"],
+        )
+
+
+
+@pytest.mark.integration
+def test_responsible_approver_cannot_reject_own_expense(
+    expense_scenario,
+):
+    from app.services.exceptions import SelfApprovalForbidden
+    from app.services.expense_workflow import reject_expense
+
+    s = expense_scenario
+
+    with pytest.raises(SelfApprovalForbidden):
+        reject_expense(
+            expense_id=s["expense_id"],
+            approver_id=s["employee_id"],
+            expected_version=s["version"],
+            reason="Test rejection",
+        )

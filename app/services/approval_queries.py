@@ -42,15 +42,18 @@ def list_actionable_expenses(
                       AND d.decision = 'escalated'
                     ORDER BY d.id DESC
                     LIMIT 1
-                ) AS assignment ON TRUE
-                WHERE e.status = 'pending'
-                   OR (
-                       e.status = 'escalated'
-                       AND assignment.target_approver_id = %s
-                   )
+                ) AS assignment ON TRUE                
+                WHERE e.employee_id <> %s
+                    AND (
+                        e.status = 'pending'
+                        OR (
+                            e.status = 'escalated'
+                            AND assignment.target_approver_id = %s
+                        )
+                    )
                 ORDER BY e.id DESC
                 """,
-                (approver_id,),
+                (approver_id, approver_id)
             )
 
             candidates = cur.fetchall()

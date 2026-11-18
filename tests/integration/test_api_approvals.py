@@ -1,6 +1,7 @@
 
 import pytest
 from fastapi.testclient import TestClient
+from datetime import date
 
 from app.api.main import create_app
 from app.database.postgres import get_connection
@@ -25,9 +26,9 @@ def headers(token):
 
 
 def test_approver_sees_pending_expenses(
-    client, expense_scenario, auth_token
+    client, approval_handoff_scenario, auth_token
 ):
-    s = expense_scenario
+    s = approval_handoff_scenario
 
     response = client.get(
         "/api/v1/approvals",
@@ -81,13 +82,13 @@ def test_unauthorized_employee_has_empty_queue(
 
 
 def test_assigned_escalation_appears_in_queue(
-    client, expense_scenario, auth_token
+    client, decision_scenario, auth_token
 ):
-    s = expense_scenario
+    s = decision_scenario
 
     escalate_expense(
         expense_id=s["expense_id"],
-        employee_id=s["employee_id"],
+        employee_id=s["submitter_id"],
         expected_version=s["version"],
     )
 
@@ -133,20 +134,63 @@ def test_invalid_queue_pagination(client, auth_token, params):
 
 
 
+
 def test_queue_pagination_after_authorization(
-    client, expense_scenario, auth_token
+    client, decision_scenario, auth_token
 ):
-    s = expense_scenario
+    s = decision_scenario
 
     first_id = s["expense_id"]
-    second_id = s["create_expense"](
-        amount=100,
-        description="Second queued expense",
-    )
-    third_id = s["create_expense"](
-        amount=200,
-        description="Third queued expense",
-    )
+
+    with get_connection() as conn:
+        second_id = conn.execute(
+            """
+            INSERT INTO expenses (
+                employee_id,
+                cost_centre_id,
+                budget_id,
+                amount,
+                description,
+                expense_date
+            )
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id
+            """,
+            (
+                s["submitter_id"],
+                s["cost_centre_id"],
+                s["budget_id"],
+                100,
+                "Second queued expense",
+                date(2026, 11, 9),
+            ),
+        ).fetchone()[0]
+
+        third_id = conn.execute(
+            """
+            INSERT INTO expenses (
+                employee_id,
+                cost_centre_id,
+                budget_id,
+                amount,
+                description,
+                expense_date
+            )
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id
+            """,
+            (
+                s["submitter_id"],
+                s["cost_centre_id"],
+                s["budget_id"],
+                200,
+                "Third queued expense",
+                date(2026, 11, 9),
+            ),
+        ).fetchone()[0]
+
+    s["track_expense"](second_id)
+    s["track_expense"](third_id)
 
     response = client.get(
         "/api/v1/approvals",
@@ -157,9 +201,11 @@ def test_queue_pagination_after_authorization(
     assert response.status_code == 200
 
     page = response.json()
+
     assert page["total"] == 3
     assert page["limit"] == 1
     assert page["offset"] == 1
+
     assert [item["id"] for item in page["items"]] == [
         second_id
     ]
@@ -167,12 +213,13 @@ def test_queue_pagination_after_authorization(
     assert first_id < second_id < third_id
 
 
+
 def test_queue_reflects_revoked_authority(
-    client, expense_scenario, auth_token
+    client, decision_scenario, auth_token
 ):
     from app.database.neo4j import get_driver
 
-    s = expense_scenario
+    s = decision_scenario
 
     before = client.get(
         "/api/v1/approvals",
@@ -247,3 +294,23 @@ def test_handoff_expense_visible_to_approver(
                 """,
                 (hash_session_token(token),),
             )
+
+
+def test_queue_excludes_own_expenses(
+    client, expense_scenario, auth_token
+):
+    s = expense_scenario
+
+    response = client.get(
+        "/api/v1/approvals",
+        headers=headers(auth_token),
+    )
+
+    assert response.status_code == 200
+
+    ids = {
+        item["id"]
+        for item in response.json()["items"]
+    }
+
+    assert s["expense_id"] not in ids

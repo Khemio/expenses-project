@@ -10,3 +10,6 @@ class UnauthorizedApprover(WorkflowError):
 
 class ExpenseNotFound(WorkflowError):
     """The requested expense does not exist."""
+
+class SelfApprovalForbidden(UnauthorizedApprover):
+    """An employee cannot decide their own expense."""

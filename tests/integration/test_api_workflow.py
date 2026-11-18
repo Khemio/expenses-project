@@ -26,9 +26,9 @@ def auth_header(token):
 
 
 def test_api_approval(
-    client, expense_scenario, auth_token
+    client, decision_scenario, auth_token
 ):
-    s = expense_scenario
+    s = decision_scenario
 
     response = client.post(
         f"/api/v1/expenses/{s['expense_id']}/approve",
@@ -81,9 +81,9 @@ def test_api_approval_requires_authentication(
 
 
 def test_api_unauthorized_approval(
-    client, expense_scenario
+    client, decision_scenario
 ):
-    s = expense_scenario
+    s = decision_scenario
     token = create_session(s["unauthorized_employee_id"])
 
     try:
@@ -123,9 +123,9 @@ def test_api_unauthorized_approval(
 
 
 def test_api_insufficient_budget(
-    client, expense_scenario, auth_token
+    client, decision_scenario, auth_token
 ):
-    s = expense_scenario
+    s = decision_scenario
 
     with get_connection() as conn:
         conn.execute(
@@ -151,9 +151,9 @@ def test_api_insufficient_budget(
 
 
 def test_api_approval_stale_version(
-    client, expense_scenario, auth_token
+    client, decision_scenario, auth_token
 ):
-    s = expense_scenario
+    s = decision_scenario
 
     with get_connection() as conn:
         conn.execute(
@@ -175,9 +175,9 @@ def test_api_approval_stale_version(
 
 
 def test_api_rejection(
-    client, expense_scenario, auth_token
+    client, decision_scenario, auth_token
 ):
-    s = expense_scenario
+    s = decision_scenario
     response = client.post(
         f"/api/v1/expenses/{s['expense_id']}/reject",
         json={
@@ -242,9 +242,9 @@ def test_api_rejection_requires_authority(
 
 
 def test_api_rejection_requires_reason(
-    client, expense_scenario, auth_token
+    client, decision_scenario, auth_token
 ):
-    s = expense_scenario
+    s = decision_scenario
 
     response = client.post(
         f"/api/v1/expenses/{s['expense_id']}/reject",
@@ -258,41 +258,63 @@ def test_api_rejection_requires_reason(
     assert response.status_code == 422
 
 
-def test_api_escalation(
-    client, expense_scenario, auth_token
-):
-    s = expense_scenario
 
-    response = client.post(
-        f"/api/v1/expenses/{s['expense_id']}/escalate",
-        json={"expected_version": s["version"]},
-        headers=auth_header(auth_token),
-    )
+def test_api_escalation(client, decision_scenario):
+    s = decision_scenario
+    submitter_token = create_session(s["submitter_id"])
 
-    assert response.status_code == 200
-    assert response.json()["status"] == "escalated"
+    try:
+        response = client.post(
+            f"/api/v1/expenses/{s['expense_id']}/escalate",
+            json={"expected_version": s["version"]},
+            headers=auth_header(submitter_token),
+        )
 
-    with get_connection() as conn:
-        decisions = conn.execute(
-            """
-            SELECT decision, approver_id, target_approver_id
-            FROM decisions WHERE expense_id = %s
-            """,
-            (s["expense_id"],),
-        ).fetchall()
+        assert response.status_code == 200
+        assert response.json()["status"] == "escalated"
 
-        budget = conn.execute(
-            """
-            SELECT remaining, version
-            FROM budgets WHERE id = %s
-            """,
-            (s["budget_id"],),
-        ).fetchone()
+        with get_connection() as conn:
+            decisions = conn.execute(
+                """
+                SELECT decision, approver_id, target_approver_id
+                FROM decisions
+                WHERE expense_id = %s
+                """,
+                (s["expense_id"],),
+            ).fetchall()
 
-    assert decisions == [
-        ("escalated", s["employee_id"], s["employee_id"])
-    ]
-    assert budget == (Decimal("2000"), s["version"])
+            budget = conn.execute(
+                """
+                SELECT remaining, version
+                FROM budgets
+                WHERE id = %s
+                """,
+                (s["budget_id"],),
+            ).fetchone()
+
+        assert decisions == [
+            (
+                "escalated",
+                s["submitter_id"],
+                s["approver_id"],
+            ),
+        ]
+
+        assert budget == (
+            Decimal("2000"),
+            s["version"],
+        )
+
+    finally:
+        with get_connection() as conn:
+            conn.execute(
+                """
+                DELETE FROM api_sessions
+                WHERE token_hash = %s
+                """,
+                (hash_session_token(submitter_token),),
+            )
+
 
 
 def test_api_non_submitter_cannot_escalate(

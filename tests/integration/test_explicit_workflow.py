@@ -51,8 +51,8 @@ def get_state(expense_id, budget_id):
     return expense, budget, decisions
 
 
-def test_explicit_approval(expense_scenario):
-    s = expense_scenario
+def test_explicit_approval(decision_scenario):
+    s = decision_scenario
 
     result = approve_expense(
         expense_id=s["expense_id"],
@@ -101,9 +101,9 @@ def test_unauthorized_approval_does_not_escalate(
 
 
 def test_explicit_rejection_preserves_budget(
-    expense_scenario,
+    decision_scenario,
 ):
-    s = expense_scenario
+    s = decision_scenario
 
     result = reject_expense(
         expense_id=s["expense_id"],
@@ -149,13 +149,13 @@ def test_unauthorized_rejection(expense_scenario):
 
 
 def test_submitter_can_explicitly_escalate(
-    expense_scenario,
+    decision_scenario,
 ):
-    s = expense_scenario
+    s = decision_scenario
 
     result = escalate_expense(
         expense_id=s["expense_id"],
-        employee_id=s["employee_id"],
+        employee_id=s["submitter_id"],
         expected_version=s["version"],
     )
 
@@ -205,9 +205,9 @@ def test_non_submitter_cannot_escalate(
 
 
 def test_approval_with_insufficient_budget(
-    expense_scenario,
+    decision_scenario,
 ):
-    s = expense_scenario
+    s = decision_scenario
 
     with get_connection() as conn:
         conn.execute(
@@ -224,7 +224,7 @@ def test_approval_with_insufficient_budget(
     ):
         approve_expense(
             expense_id=s["expense_id"],
-            approver_id=s["employee_id"],
+            approver_id=s["approver_id"],
             expected_version=s["version"],
         )
 

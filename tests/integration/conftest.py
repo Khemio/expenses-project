@@ -340,3 +340,43 @@ def approval_handoff_scenario(expense_scenario):
         "cost_centre_id": s["cost_centre_id"],
         "version": s["version"],
     }
+
+
+
+@pytest.fixture
+def decision_scenario(expense_scenario):
+    """A 700 EUR expense with separate submitter and approver."""
+    s = expense_scenario
+
+    with get_connection() as conn:
+        expense_id = conn.execute(
+            """
+            INSERT INTO expenses (
+                employee_id,
+                cost_centre_id,
+                budget_id,
+                amount,
+                description,
+                expense_date
+            )
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id
+            """,
+            (
+                s["unauthorized_employee_id"],
+                s["cost_centre_id"],
+                s["budget_id"],
+                700,
+                "Decision workflow test expense",
+                date(2026, 11, 9),
+            ),
+        ).fetchone()[0]
+
+    s["track_expense"](expense_id)
+
+    return {
+        **s,
+        "expense_id": expense_id,
+        "submitter_id": s["unauthorized_employee_id"],
+        "approver_id": s["employee_id"],
+    }

@@ -6,6 +6,7 @@ from app.services.exceptions import (
     WorkflowError, 
     ExpenseNotFound,
     UnauthorizedApprover,
+    SelfApprovalForbidden
 )
 from app.services.authorization_service import is_authorized_approver
 from app.services.escalation_service import find_responsible_approver
@@ -78,6 +79,13 @@ def process_expense(
                 raise WorkflowError(
                     f"Expense cannot be processed: status={status}"
                 )
+            
+
+            if action in ("approve", "reject") and approver_id == submitter_id:
+                raise SelfApprovalForbidden(
+                    "Employees cannot approve or reject their own expenses"
+                )
+
 
             # 2. Lock the budget and check its version.
             cur.execute(
