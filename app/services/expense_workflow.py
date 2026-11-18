@@ -13,6 +13,7 @@ from app.services.authorization_service import (
     is_authorized_for_expense,
 )
 from app.services.escalation_service import find_responsible_approver
+from app.services.reviewer_service import find_independent_reviewer
 from app.database.postgres import get_connection
 
 WorkflowAction = Literal[
@@ -105,11 +106,6 @@ def process_expense(
 
             if budget is None:
                 raise WorkflowError("Budget not found")
-
-            # if action not in (
-            #     "automatic", "approve", "reject", "escalate"
-            # ):
-            #     raise ValueError("Unsupported workflow action")
 
             remaining, version, budget_cost_centre_id = budget
 
@@ -222,6 +218,7 @@ def process_expense(
                         "Only the submitter may request escalation"
                     )
 
+                
                 responsible_id = find_responsible_approver(
                     cost_centre_id
                 )
@@ -231,8 +228,27 @@ def process_expense(
                         "No escalation target available"
                     )
 
-                target_authorized = is_authorized_approver(
-                    approver_id=responsible_id,
+                if responsible_id == submitter_id:
+                    target_approver_id = find_independent_reviewer(
+                        cost_centre_id=cost_centre_id,
+                        submitter_id=submitter_id,
+                    )
+                else:
+                    target_approver_id = responsible_id
+
+                if target_approver_id is None:
+                    raise WorkflowError(
+                        "No independent reviewer configured"
+                    )
+
+                if target_approver_id == submitter_id:
+                    raise WorkflowError(
+                        "Cannot escalate an expense to its submitter"
+                    )
+
+                target_authorized = is_authorized_for_expense(
+                    approver_id=target_approver_id,
+                    submitter_id=submitter_id,
                     cost_centre_id=cost_centre_id,
                     amount=amount,
                     expense_date=expense_date,
@@ -244,11 +260,11 @@ def process_expense(
                     )
 
                 outcome = "escalated"
-                target_approver_id = responsible_id
                 decision_comment = (
                     comment
-                    or f"Escalated to employee {responsible_id}"
+                    or f"Escalated to employee {target_approver_id}"
                 )
+
 
 
             # 6. Deduct budget only for approval.
