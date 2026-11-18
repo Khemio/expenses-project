@@ -61,6 +61,8 @@ The database experiments are useful demonstrations, but are not all exposed as e
 - Integration tests must be executed through `scripts/run_integration_tests.py` against isolated test services.
 - The schema's PostgreSQL `api_sessions` migration is separate from the base `schema.sql`.
 
+See the [current data-model reference](SCHEMA.md). Earlier materials are in the [coursework archive](coursework/README.md).
+
 ## Presentation walkthrough
 
 A concise, accurate demonstration can show:
