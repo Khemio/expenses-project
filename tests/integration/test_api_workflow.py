@@ -351,3 +351,64 @@ def test_api_non_submitter_cannot_escalate(
                 """,
                 (hash_session_token(token),),
             )
+
+
+
+import pytest
+
+
+@pytest.mark.parametrize(
+    "action,payload",
+    [
+        ("approve", None),
+        ("reject", {"reason": "Self-rejection attempt"}),
+    ],
+)
+def test_api_prevents_self_decisions(
+    client,
+    expense_scenario,
+    auth_token,
+    action,
+    payload,
+):
+    s = expense_scenario
+
+    body = {"expected_version": s["version"]}
+    if payload:
+        body.update(payload)
+
+    response = client.post(
+        f"/api/v1/expenses/{s['expense_id']}/{action}",
+        json=body,
+        headers=auth_header(auth_token),
+    )
+
+    assert response.status_code == 403
+
+    with get_connection() as conn:
+        expense_status = conn.execute(
+            "SELECT status FROM expenses WHERE id = %s",
+            (s["expense_id"],),
+        ).fetchone()[0]
+
+        budget = conn.execute(
+            """
+            SELECT remaining, version
+            FROM budgets
+            WHERE id = %s
+            """,
+            (s["budget_id"],),
+        ).fetchone()
+
+        decision_count = conn.execute(
+            """
+            SELECT COUNT(*)
+            FROM decisions
+            WHERE expense_id = %s
+            """,
+            (s["expense_id"],),
+        ).fetchone()[0]
+
+    assert expense_status == "pending"
+    assert budget == (Decimal("2000"), s["version"])
+    assert decision_count == 0
