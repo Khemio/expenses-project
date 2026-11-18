@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 from datetime import date
 
 from app.api.main import create_app
+from app.database.neo4j import get_driver
 from app.database.postgres import get_connection
 from app.services.auth_sessions import (
     create_session,
@@ -275,3 +276,114 @@ def test_queue_excludes_own_expenses(
     }
 
     assert s["expense_id"] not in ids
+
+
+@pytest.fixture
+def independent_reviewer_token(expense_scenario):
+    reviewer_id = expense_scenario["unauthorized_employee_id"]
+    token = create_session(reviewer_id)
+
+    try:
+        yield token
+    finally:
+        with get_connection() as conn:
+            conn.execute(
+                """
+                DELETE FROM api_sessions
+                WHERE token_hash = %s
+                """,
+                (hash_session_token(token),),
+            )
+
+
+
+def assign_independent_reviewer(s):
+    with get_driver().session() as session:
+        session.run(
+            """
+            MATCH (reviewer:Employee {
+                employee_id: $reviewer_id
+            })
+            MATCH (cc:CostCentre {
+                cost_centre_id: $cost_centre_id
+            })
+            CREATE (reviewer)-[:REVIEWER_FOR]->(cc)
+            """,
+            reviewer_id=s["unauthorized_employee_id"],
+            cost_centre_id=s["cost_centre_id"],
+        ).consume()
+
+
+
+def test_independent_reviewer_sees_owner_expense(
+    client,
+    expense_scenario,
+    independent_reviewer_token,
+):
+    s = expense_scenario
+    assign_independent_reviewer(s)
+
+    response = client.get(
+        "/api/v1/approvals",
+        headers=headers(independent_reviewer_token),
+    )
+
+    assert response.status_code == 200
+
+    items = response.json()["items"]
+
+    assert s["expense_id"] in {
+        item["id"] for item in items
+    }
+
+
+
+def test_independent_reviewer_escalation_revocation(
+    client,
+    expense_scenario,
+    independent_reviewer_token,
+):
+    s = expense_scenario
+    assign_independent_reviewer(s)
+
+    escalate_expense(
+        expense_id=s["expense_id"],
+        employee_id=s["employee_id"],
+        expected_version=s["version"],
+    )
+
+    before = client.get(
+        "/api/v1/approvals",
+        headers=headers(independent_reviewer_token),
+    )
+
+    assert before.status_code == 200
+    assert s["expense_id"] in {
+        item["id"] for item in before.json()["items"]
+    }
+
+    # Revoke the independent-reviewer assignment.
+    with get_driver().session() as session:
+        session.run(
+            """
+            MATCH (reviewer:Employee {
+                employee_id: $reviewer_id
+            })-[r:REVIEWER_FOR]->
+            (cc:CostCentre {
+                cost_centre_id: $cost_centre_id
+            })
+            DELETE r
+            """,
+            reviewer_id=s["unauthorized_employee_id"],
+            cost_centre_id=s["cost_centre_id"],
+        ).consume()
+
+    after = client.get(
+        "/api/v1/approvals",
+        headers=headers(independent_reviewer_token),
+    )
+
+    assert after.status_code == 200
+    assert s["expense_id"] not in {
+        item["id"] for item in after.json()["items"]
+    }

@@ -248,6 +248,7 @@ def test_delegation_monetary_boundaries(
 
     candidate = {
         "id": s["expense_id"],
+        "employee_id": s["employee_id"],
         "cost_centre_id": centre_id,
         "amount": decimal_amount,
         "expense_date": expense_date,

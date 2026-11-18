@@ -52,19 +52,14 @@ def get_authorized_expense_ids(
     candidates: Sequence[dict],
     batch_size: int = 200,
 ) -> set[int]:
-    """Return IDs of expenses an employee may approve.
-
-    Applies the same Neo4j delegation rules used by
-    is_authorized_approver(), but evaluates candidates
-    in batches.
-    """
+    """Resolve ordinary and independent-reviewer authority in batches."""
     if batch_size < 1:
         raise ValueError("batch_size must be positive")
 
     if not candidates:
         return set()
 
-    query = """
+    ordinary_query = """
     UNWIND $candidates AS item
 
     MATCH (owner:Employee)-[:RESPONSIBLE_FOR]->(cc:CostCentre)
@@ -73,6 +68,7 @@ def get_authorized_expense_ids(
     MATCH path =
         (owner)-[:DELEGATED_TO*0..5]->(approver:Employee)
     WHERE approver.employee_id = $approver_id
+      AND item.submitter_id <> $approver_id
 
     AND ALL(rel IN relationships(path) WHERE
         rel.scope = cc.name
@@ -80,6 +76,31 @@ def get_authorized_expense_ids(
         AND date(rel.valid_from) <= date(item.expense_date)
         AND date(rel.valid_to) >= date(item.expense_date)
     )
+
+    RETURN DISTINCT item.id AS expense_id
+    """
+
+    reviewer_query = """
+    UNWIND $candidates AS item
+
+    MATCH (owner:Employee)-[:RESPONSIBLE_FOR]->
+          (cc:CostCentre)
+    WHERE cc.cost_centre_id = item.cost_centre_id
+
+    WITH item, cc,
+         collect(DISTINCT owner.employee_id) AS owners
+
+    WHERE size(owners) = 1
+      AND owners[0] = item.submitter_id
+      AND item.submitter_id <> $approver_id
+
+    MATCH (reviewer:Employee)-[:REVIEWER_FOR]->(cc)
+
+    WITH item,
+         collect(DISTINCT reviewer.employee_id) AS reviewers
+
+    WHERE size(reviewers) = 1
+      AND reviewers[0] = $approver_id
 
     RETURN DISTINCT item.id AS expense_id
     """
@@ -93,27 +114,28 @@ def get_authorized_expense_ids(
             parameters = [
                 {
                     "id": item["id"],
+                    "submitter_id": item["employee_id"],
                     "cost_centre_id": item["cost_centre_id"],
                     "amount_cents": to_cents(item["amount"]),
-                    "expense_date": (
-                        item["expense_date"].isoformat()
-                    ),
+                    "expense_date": item["expense_date"].isoformat(),
                 }
                 for item in chunk
             ]
 
-            result = session.run(
-                query,
-                approver_id=approver_id,
-                candidates=parameters,
-            )
+            for query in (ordinary_query, reviewer_query):
+                result = session.run(
+                    query,
+                    approver_id=approver_id,
+                    candidates=parameters,
+                )
 
-            authorized_ids.update(
-                record["expense_id"]
-                for record in result
-            )
+                authorized_ids.update(
+                    record["expense_id"]
+                    for record in result
+                )
 
     return authorized_ids
+
 
 
 
