@@ -116,7 +116,7 @@ docker compose -f docker-compose.test.yaml up -d
 python scripts/run_integration_tests.py -v
 ```
 
-The test runner checks the database identities before running, applies the test schema, and verifies cleanup afterward. Last user-verified result (November 18, 2026): **55 unit tests** and **110 integration tests** passed. Test counts may change as development continues.
+The test runner checks the database identities before running, applies the test schema, and verifies cleanup afterward. Last user-verified result (November 26, 2026): **55 unit tests** and **112 integration tests** passed (before the receipt-evidence gate). Test counts may change as development continues.
 
 ## Project layout
 
