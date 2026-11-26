@@ -70,6 +70,27 @@ with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
 python -m app.database.mongo_setup
 ```
 
+For an **existing database**, do **not** rerun `init_db` or `mongo_setup`.
+Apply the additive decision-evidence migration once:
+
+```powershell
+@'
+import os
+from pathlib import Path
+import psycopg
+from dotenv import load_dotenv
+load_dotenv()
+sql = Path("app/database/migrations/002_decision_evidence.sql").read_text(encoding="utf-8")
+with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
+    conn.execute(sql)
+print("Decision evidence migration applied.")
+'@ | python -
+```
+
+For a new database, `schema.sql` already defines the evidence columns; the migration
+is safe to apply again. See [decision evidence](docs/DECISION_EVIDENCE.md) for what is
+retained and which older records have no historical snapshot.
+
 The database schema and session migration should be applied to a **fresh development database**, not blindly replayed over data you need to preserve. Graph data (employees/cost centres/relationships) must be populated consistently with PostgreSQL for approval operations; there is no automatic complete bootstrap of a demo organization.
 
 Start the API:
