@@ -47,7 +47,8 @@ def test_approval_evidence_survives_later_budget_change(decision_scenario):
         conn.execute(
             """
             UPDATE budgets
-            SET remaining = 900
+            SET remaining = 900,
+                version = version + 1
             WHERE id = %s
             """,
             (s["budget_id"],),
