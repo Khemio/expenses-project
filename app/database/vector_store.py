@@ -48,6 +48,7 @@ def setup_postgres():
                     source_id TEXT NOT NULL,
                     filter_group TEXT NOT NULL DEFAULT 'common',
                     refreshed_at TIMESTAMPTZ NOT NULL,
+                    source_version INTEGER CHECK (source_version IS NULL OR source_version >= 1),
                     embedding VECTOR(384) NOT NULL
                 );
             """)
@@ -56,6 +57,12 @@ def setup_postgres():
                 ALTER TABLE vector_documents
                 ADD COLUMN IF NOT EXISTS filter_group TEXT
                 NOT NULL DEFAULT 'common';
+            """)
+
+            cur.execute("""
+                ALTER TABLE vector_documents
+                ADD COLUMN IF NOT EXISTS source_version INTEGER
+                CHECK (source_version IS NULL OR source_version >= 1);
             """)
 
             cur.execute("""
@@ -114,6 +121,7 @@ def store_documents(documents, embeddings):
             document["source_id"],
             document["filter_group"],
             now,
+            document.get("source_version"),
             vector,
         ))
 
@@ -131,6 +139,7 @@ def store_documents(documents, embeddings):
                     "source_id": document["source_id"],
                     "filter_group": document["filter_group"],
                     "refreshed_at": now.isoformat(),
+                    "source_version": document.get("source_version"),
                 },
             )
         )
@@ -140,14 +149,15 @@ def store_documents(documents, embeddings):
             cur.executemany("""
                 INSERT INTO vector_documents
                 (id, document_type, content, source_id,
-                 filter_group, refreshed_at, embedding)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                 filter_group, refreshed_at, source_version, embedding)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (id) DO UPDATE SET
                     document_type = EXCLUDED.document_type,
                     content = EXCLUDED.content,
                     source_id = EXCLUDED.source_id,
                     filter_group = EXCLUDED.filter_group,
                     refreshed_at = EXCLUDED.refreshed_at,
+                    source_version = EXCLUDED.source_version,
                     embedding = EXCLUDED.embedding;
             """, postgres_rows)
 

@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS vector_documents (
     source_id TEXT NOT NULL,
     filter_group TEXT NOT NULL DEFAULT 'common',
     refreshed_at TIMESTAMPTZ NOT NULL,
+    source_version INTEGER CHECK (source_version IS NULL OR source_version >= 1),
     embedding VECTOR(384) NOT NULL
 );
 

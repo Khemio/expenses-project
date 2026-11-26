@@ -72,6 +72,7 @@ def load_receipts():
                 "document_type": "receipt",
                 "text": receipt_to_text(receipt),
                 "source_id": f"mongodb:receipts:{receipt_id}",
+                "source_version": receipt.get("source_version"),
                 "filter_group": "common",
             })
 

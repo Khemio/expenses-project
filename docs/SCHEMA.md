@@ -81,11 +81,12 @@ erDiagram
         text source_id
         text filter_group
         timestamptz refreshed_at
+        int source_version
         vector384 embedding
     }
 ```
 
-`vector_documents` is independent of the transactional foreign-key graph; the vector is stored as `VECTOR(384)`. The corresponding Qdrant store is maintained separately rather than through a cross-database foreign key.
+`vector_documents` is independent of the transactional foreign-key graph; the vector is stored as `VECTOR(384)`. The corresponding Qdrant store is maintained separately rather than through a cross-database foreign key. `source_version` is optional and is NULL for legacy or unversioned documents. When the source supplies a version it is copied to PostgreSQL and Qdrant; `refreshed_at` records when each derived copy was written, not the timestamp of the source change.
 
 ## Other stores
 

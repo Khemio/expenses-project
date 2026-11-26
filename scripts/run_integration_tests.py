@@ -295,6 +295,18 @@ def initialize_decision_evidence_schema():
     print("Decision evidence schema ready.")
 
 
+def initialize_vector_source_version_schema():
+    """Add source-version metadata without rewriting old vector rows."""
+    migration_path = (
+        ROOT / "app" / "database" / "migrations"
+        / "003_vector_source_version.sql"
+    )
+    with psycopg.connect(TEST_DATABASE_URL) as conn:
+        conn.execute(migration_path.read_text(encoding="utf-8"))
+
+    print("Vector source-version schema ready.")
+
+
 def main():
     env = os.environ.copy()
 
@@ -326,6 +338,7 @@ def main():
         initialize_database()
         initialize_auth_schema()
         initialize_decision_evidence_schema()
+        initialize_vector_source_version_schema()
     except Exception as error:
         print(f"FAILED: Test environment preparation: {error}")
         return 1
