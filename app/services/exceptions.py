@@ -13,3 +13,10 @@ class ExpenseNotFound(WorkflowError):
 
 class SelfApprovalForbidden(UnauthorizedApprover):
     """An employee cannot decide their own expense."""
+
+class MissingReceiptEvidence(WorkflowError):
+    """Approval requires a usable MongoDB receipt for this expense."""
+
+
+class ReceiptEvidenceUnavailable(WorkflowError):
+    """Receipt source cannot be queried; do not approve on stale assumptions."""
