@@ -52,6 +52,8 @@ erDiagram
         int approver_id FK
         varchar decision
         text comment
+        text rule_version
+        jsonb evidence_snapshot
         timestamp created_at
         int target_approver_id FK
     }
@@ -64,7 +66,7 @@ erDiagram
     }
 ```
 
-`decisions.target_approver_id` is nullable and references an employee; an escalation records the employee to whom it is assigned. The base schema defines the other tables, while `api_sessions` is introduced separately by a migration.
+`decisions.target_approver_id` is nullable and references an employee; an escalation records the employee to whom it is assigned. The base schema defines the other tables, while `api_sessions` is introduced separately by a migration. The additive `002_decision_evidence.sql` migration adds nullable evidence fields to existing decisions; new decisions record a rule version and JSONB snapshot. See [decision evidence](DECISION_EVIDENCE.md).
 
 **Important constraints:** `budgets.remaining` must be between zero and `total`, and `budgets.version` supports concurrency checks; expense amounts are positive and statuses are `pending`, `approved`, `rejected`, or `escalated`. Decisions are `approved`, `rejected`, or `escalated`.
 
