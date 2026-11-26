@@ -16,6 +16,7 @@ from app.services.authorization_service import (
 )
 from app.services.escalation_service import find_responsible_approver
 from app.services.reviewer_service import find_independent_reviewer
+from app.services.receipt_evidence import require_receipt_evidence
 from app.database.postgres import get_connection
 
 WorkflowAction = Literal[
@@ -25,7 +26,7 @@ WorkflowAction = Literal[
 ]
 
 # Bump this when the decision rules change in a meaningful way.
-RULE_VERSION = "expense-workflow-v1"
+RULE_VERSION = "expense-workflow-v2"
 
 
 def process_expense(
@@ -183,6 +184,7 @@ def process_expense(
             # 5. Determine the requested outcome.
             target_approver_id = None
             target_authorized = None
+            receipt_evidence = None
 
             if action == "approve":
                 if not authorized:
@@ -194,6 +196,13 @@ def process_expense(
                     raise WorkflowError(
                         "Insufficient budget for approval"
                     )
+
+                # Missing or unavailable source evidence blocks approval,
+                # but rejection and escalation remain possible.
+                receipt_evidence = require_receipt_evidence(
+                    expense_id=expense_id,
+                    expense_amount=amount,
+                )
 
                 outcome = "approved"
                 decision_comment = (
@@ -333,6 +342,7 @@ def process_expense(
                     "version_before": version,
                     "version_after": version + (1 if outcome == "approved" else 0),
                 },
+                "receipt": receipt_evidence,
                 "authorization": {
                     "source": "neo4j",
                     "approver_id": approver_id,
