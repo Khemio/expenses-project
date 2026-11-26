@@ -8,7 +8,8 @@ from pymongo import MongoClient
 
 from app.config import get_settings
 from app.database.postgres import get_connection
-from app.services.exceptions import MissingReceiptEvidence
+from app.services.exceptions import MissingReceiptEvidence, ReceiptEvidenceUnavailable
+import app.services.expense_workflow as workflow
 from app.services.expense_workflow import approve_expense, reject_expense
 
 pytestmark = pytest.mark.integration
@@ -124,3 +125,23 @@ def test_rejection_remains_possible_without_receipt(decision_scenario):
             (s["expense_id"],),
         ).fetchone()[0]
     assert snapshot["receipt"] is None
+
+
+def test_mongodb_outage_blocks_approval(decision_scenario, monkeypatch):
+    s = decision_scenario
+
+    def unavailable(**kwargs):
+        raise ReceiptEvidenceUnavailable(
+            "Receipt evidence is unavailable; approval cannot proceed"
+        )
+
+    monkeypatch.setattr(workflow, "require_receipt_evidence", unavailable)
+
+    with pytest.raises(ReceiptEvidenceUnavailable):
+        approve_expense(
+            expense_id=s["expense_id"],
+            approver_id=s["approver_id"],
+            expected_version=s["version"],
+        )
+
+    _assert_unchanged(s)
