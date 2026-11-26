@@ -14,7 +14,7 @@ decision time, not a reconstruction from today's mutable budget or graph.
 
 ## Evidence contract (version 1)
 
-- `rule_version`: currently `expense-workflow-v1`; change when decision logic changes.
+- `rule_version`: currently `expense-workflow-v2`; change when decision logic changes.
 - `evidence_snapshot.schema_version`: structure of the stored JSON.
 - `expense`: source ID, employee and cost centre IDs, budget ID, amount as an exact decimal
   string, date and prior expense status.
@@ -37,8 +37,9 @@ they must not be presented as if full historical provenance were available.
 
 **Limits:** This is a decision-time snapshot of the values checked by the workflow.
 It records the Neo4j authorization boolean, **not** the relationship IDs, individual
-delegation versions, or complete path that justified authorization. It captures a MongoDB receipt observation for approvals, but not a source
-version or transactionally consistent MongoDB snapshot. MongoDB changes can
+delegation versions, or complete path that justified authorization. It captures a
+MongoDB receipt observation for approvals, but not a source version or
+transactionally consistent MongoDB snapshot. MongoDB changes can
 race the PostgreSQL transaction; there is no cross-database atomic commit.
 Vector-search candidates are not recorded. A future step can
 add versioned source references if those inputs become part of the approval decision.
