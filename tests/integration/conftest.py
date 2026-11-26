@@ -12,6 +12,8 @@ import pytest
 from app.database.neo4j import get_driver
 from app.database.postgres import get_connection
 from tests.integration.factories import ExpenseFactory
+from tests.integration.receipt_helpers import add_test_receipt, delete_test_receipts
+from app.database.mongo_setup import setup_receipts_collection
 from app.services.auth_sessions import (
     create_session,
     hash_session_token,
@@ -71,8 +73,15 @@ def require_test_databases():
         pytest.fail("Unsafe Qdrant test configuration")
 
 
+
+@pytest.fixture(scope="session")
+def ensure_receipt_schema():
+    """Install strict validator in the dedicated integration test MongoDB."""
+    setup_receipts_collection()
+
+
 @pytest.fixture
-def expense_scenario():
+def expense_scenario(ensure_receipt_schema):
     """Create an isolated expense approval scenario.
 
     PostgreSQL stores the business records.
@@ -177,6 +186,9 @@ def expense_scenario():
 
                 expense_factory.track(expense_id)
 
+        # The workflow requires matching authoritative receipt evidence.
+        add_test_receipt(expense_id, 700)
+
         # Create matching Neo4j authorization data.
         with get_driver().session() as session:
             session.run(
@@ -234,6 +246,10 @@ def expense_scenario():
                 ).consume()
 
         finally:
+            # Remove receipts before their corresponding test expenses.
+            if expense_factory is not None:
+                delete_test_receipts(expense_factory.expense_ids)
+
             # Remove PostgreSQL records in dependency order.
             if cost_centre_id is not None:
                 with get_connection() as conn:
@@ -331,6 +347,7 @@ def approval_handoff_scenario(expense_scenario):
 
     # Register with the parent fixture for cleanup.
     s["track_expense"](expense_id)
+    add_test_receipt(expense_id, 350)
 
     return {
         "expense_id": expense_id,
@@ -373,6 +390,7 @@ def decision_scenario(expense_scenario):
         ).fetchone()[0]
 
     s["track_expense"](expense_id)
+    add_test_receipt(expense_id, 700)
 
     return {
         **s,
