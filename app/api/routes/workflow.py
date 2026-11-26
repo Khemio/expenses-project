@@ -20,6 +20,7 @@ from app.services.exceptions import (
     ExpenseNotFound,
     UnauthorizedApprover,
     WorkflowError,
+    ReceiptEvidenceUnavailable,
 )
 from app.services.expense_workflow import (
     approve_expense,
@@ -61,6 +62,11 @@ def approve_expense_endpoint(
         raise HTTPException(
             status_code=403,
             detail="Not authorized to approve this expense",
+        ) from exc
+    except ReceiptEvidenceUnavailable as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=str(exc),
         ) from exc
     except (BudgetConflict, WorkflowError) as exc:
         raise HTTPException(

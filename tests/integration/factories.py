@@ -2,6 +2,7 @@
 from datetime import date
 
 from app.database.postgres import get_connection
+from tests.integration.receipt_helpers import add_test_receipt
 
 
 class ExpenseFactory:
@@ -59,6 +60,7 @@ class ExpenseFactory:
                 expense_id = cur.fetchone()[0]
 
         self.track(expense_id)
+        add_test_receipt(expense_id, amount)
         return expense_id
 
     def cleanup(self, cursor) -> None:

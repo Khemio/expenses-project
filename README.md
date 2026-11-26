@@ -14,7 +14,7 @@ A Python/FastAPI backend prototype for expense submission and review, built to e
 | **Neo4j** | Cost-centre responsibility, scoped delegation and independent-review relationships |
 | **Qdrant** | Vector similarity search over example receipts and policies |
 
-The FastAPI application sits in front of the relational workflow and graph authorization services. Approval uses PostgreSQL row locks, a budget-version check, an atomic budget deduction, and a decision record. Graph authority is checked at decision time, including after escalation.
+The FastAPI application sits in front of the relational workflow and graph authorization services. Approval uses PostgreSQL row locks, a budget-version check, an atomic budget deduction, and a decision record. Approval also requires a matching MongoDB receipt; a failed check leaves the financial state unchanged. Receipt reads and the PostgreSQL commit are not a distributed transaction. Graph authority is checked at decision time, including after escalation.
 
 **Authorization rules:** An employee cannot approve or reject their own expense. Ordinary authority is based on `RESPONSIBLE_FOR` and bounded `DELEGATED_TO` paths. The distinct `REVIEWER_FOR` path applies to a cost-centre owner's own expenses. Escalations assign a specific eligible reviewer; revocation is rechecked before completion. The approver queue performs authorization before pagination.
 
@@ -116,7 +116,7 @@ docker compose -f docker-compose.test.yaml up -d
 python scripts/run_integration_tests.py -v
 ```
 
-The test runner checks the database identities before running, applies the test schema, and verifies cleanup afterward. Last user-verified result (November 18, 2026): **55 unit tests** and **110 integration tests** passed. Test counts may change as development continues.
+The test runner checks the database identities before running, applies the test schema, and verifies cleanup afterward. Last user-verified result (November 26, 2026): **55 unit tests** and **112 integration tests** passed (before the receipt-evidence gate). Test counts may change as development continues.
 
 ## Project layout
 
