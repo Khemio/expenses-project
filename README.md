@@ -116,7 +116,12 @@ docker compose -f docker-compose.test.yaml up -d
 python scripts/run_integration_tests.py -v
 ```
 
-The test runner checks the database identities before running, applies the test schema, and verifies cleanup afterward. Last user-verified result (November 26, 2026): **55 unit tests** and **112 integration tests** passed (before the receipt-evidence gate). Test counts may change as development continues.
+The test runner checks the database identities before running, applies the test schema, and verifies cleanup afterward.
+
+A separate [source-refresh experiment](docs/SOURCE_REFRESH.md) demonstrates
+MongoDB source version 1 → stale pgvector/Qdrant copies → version 2 refresh.
+Run it with `python scripts/run_integration_tests.py -s -v tests/integration/test_source_refresh.py`.
+It uses only isolated test records and deterministic synthetic vectors. Last user-verified result (November 26, 2026): **55 unit tests** and **112 integration tests** passed (before the receipt-evidence gate). Test counts may change as development continues.
 
 ## Project layout
 
