@@ -47,6 +47,8 @@ CREATE TABLE decisions (
     decision VARCHAR(20) NOT NULL
         CHECK (decision IN ('approved', 'rejected', 'escalated')),
     comment TEXT,
+    rule_version TEXT,
+    evidence_snapshot JSONB,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
