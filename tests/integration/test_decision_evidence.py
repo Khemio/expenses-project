@@ -33,7 +33,7 @@ def test_approval_evidence_survives_later_budget_change(decision_scenario):
         rule_version, evidence = record
         assert rule_version == "expense-workflow-v1"
         assert evidence["schema_version"] == 1
-        assert evidence["expense"]["amount"] == "700"
+        assert Decimal(evidence["expense"]["amount"]) == Decimal("700")
         assert evidence["expense"]["status_before"] == "pending"
         assert evidence["expense"]["submitter_id"] == s["submitter_id"]
         assert evidence["budget"]["remaining_before"] == "2000.00"
