@@ -1,6 +1,8 @@
 
 from typing import Literal
 
+from psycopg.types.json import Jsonb
+
 from app.services.exceptions import (
     BudgetConflict, 
     WorkflowError, 
@@ -21,6 +23,9 @@ WorkflowAction = Literal[
     "reject",
     "escalate",
 ]
+
+# Bump this when the decision rules change in a meaningful way.
+RULE_VERSION = "expense-workflow-v1"
 
 
 def process_expense(
@@ -177,6 +182,7 @@ def process_expense(
             
             # 5. Determine the requested outcome.
             target_approver_id = None
+            target_authorized = None
 
             if action == "approve":
                 if not authorized:
@@ -304,7 +310,53 @@ def process_expense(
                     "Expense status changed"
                 )
 
-            # 8. Record the decision.
+            # 8. Capture the facts used by this decision *before* they
+            # can be changed by later expenses or delegation updates.
+            # JSON stores monetary values as strings to preserve Decimal precision.
+            evidence_snapshot = {
+                "schema_version": 1,
+                "expense": {
+                    "source_id": f"postgres:expenses:{expense_id}",
+                    "submitter_id": submitter_id,
+                    "cost_centre_id": cost_centre_id,
+                    "budget_id": budget_id,
+                    "amount": str(amount),
+                    "expense_date": expense_date.isoformat(),
+                    "status_before": status,
+                },
+                "budget": {
+                    "source_id": f"postgres:budgets:{budget_id}",
+                    "remaining_before": str(remaining),
+                    "remaining_after": str(
+                        remaining - amount if outcome == "approved" else remaining
+                    ),
+                    "version_before": version,
+                    "version_after": version + (1 if outcome == "approved" else 0),
+                },
+                "authorization": {
+                    "source": "neo4j",
+                    "approver_id": approver_id,
+                    "cost_centre_id": cost_centre_id,
+                    "approver_authorized": (
+                        bool(authorized) if action in ("approve", "reject") else None
+                    ),
+                    "target_approver_id": target_approver_id,
+                    "target_authorized": target_authorized,
+                    "max_delegation_hops": 5,
+                },
+                "decision": {
+                    "requested_action": action,
+                    "outcome": outcome,
+                    "reason_code": {
+                        "approve": "AUTHORIZED_WITH_SUFFICIENT_BUDGET",
+                        "reject": "AUTHORIZED_EXPLICIT_REJECTION",
+                        "escalate": "ASSIGNED_AUTHORIZED_REVIEWER",
+                    }[action],
+                },
+            }
+
+            # 9. Save the outcome and its evidence in the same
+            # PostgreSQL transaction as the budget/status changes.
             cur.execute(
                 """
                 INSERT INTO decisions (
@@ -312,9 +364,11 @@ def process_expense(
                     approver_id,
                     target_approver_id,
                     decision,
-                    comment
+                    comment,
+                    rule_version,
+                    evidence_snapshot
                 )
-                VALUES (%s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     expense_id,
@@ -322,6 +376,8 @@ def process_expense(
                     target_approver_id,
                     outcome,
                     decision_comment,
+                    RULE_VERSION,
+                    Jsonb(evidence_snapshot),
                 ),
             )
 

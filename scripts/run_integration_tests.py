@@ -276,6 +276,25 @@ def initialize_auth_schema():
 
 
 
+def initialize_decision_evidence_schema():
+    """Apply additive evidence columns to existing isolated test databases."""
+    migration_path = (
+        ROOT
+        / "app"
+        / "database"
+        / "migrations"
+        / "002_decision_evidence.sql"
+    )
+
+    with psycopg.connect(TEST_DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                migration_path.read_text(encoding="utf-8")
+            )
+
+    print("Decision evidence schema ready.")
+
+
 def main():
     env = os.environ.copy()
 
@@ -306,6 +325,7 @@ def main():
         verify_test_environment()
         initialize_database()
         initialize_auth_schema()
+        initialize_decision_evidence_schema()
     except Exception as error:
         print(f"FAILED: Test environment preparation: {error}")
         return 1
