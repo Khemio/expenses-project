@@ -177,8 +177,10 @@ def pg_query(pg, vector, *, exact, group=None, limit=K, ef=64, iterative="off",
                 # plan for highly selective filters. This is *not* how the
                 # default PostgreSQL planner would choose to execute it.
                 pg.execute("SET LOCAL enable_sort = off")
-            pg.execute("SELECT set_config('hnsw.ef_search', %s, true)
-                       (str(ef),))
+            pg.execute(
+                "SELECT set_config('hnsw.ef_search', %s, true)",
+                (str(ef),),
+            )
             if iterative != "off":
                 pg.execute(
                     "SELECT set_config('hnsw.iterative_scan', %s, true)",
