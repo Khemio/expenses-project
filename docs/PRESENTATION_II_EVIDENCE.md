@@ -34,6 +34,15 @@ tests directly with `pytest` against development databases.
 docker compose -f docker-compose.test.yaml up -d
 ```
 
+Pure labelled evaluator results (no database writes):
+
+```powershell
+python scripts/report_labeled_decisions.py
+```
+
+This prints the 25-case denominator, expected outcome counts and mismatches.
+It reports **only** the simplified evaluator.
+
 Historical decision snapshot, before/after budget change:
 
 ```powershell
