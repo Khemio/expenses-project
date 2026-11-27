@@ -1,5 +1,7 @@
 # Final vector evaluation — Presentation II
 
+The [actual results from 2026-11-27](FINAL_VECTOR_RESULTS_2026-11-27.md) include all measured metrics, the three duplicate false positives, policy misses, actual PostgreSQL plan choices, and the synthetic join-mapping qualification.
+
 The [read-only evaluation script](../scripts/benchmark_vector_results.py)
 runs the complete fixed-label evaluation against the **existing development
 datasets** in PostgreSQL/pgvector and Qdrant. This is separate from the
