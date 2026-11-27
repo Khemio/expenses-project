@@ -57,18 +57,40 @@ connection and having a backup.
 
 Defaults: `hnsw.ef_search=64` in pgvector, `hnsw_ef=64` in Qdrant,
 `hnsw.iterative_scan=off`, and `k=10`.
+
+**Observed on November 27, 2026:** With 455 total records and only 23
+`rare` records, PostgreSQL's planner used the B-tree
+`vector_documents_filter_group_idx` plus exact distance sorting instead of
+the HNSW vector index for filtered search. This is sensible for small,
+selective subsets. The script now checks the actual PostgreSQL plan
+for each query; a recall score from this exact filtered path must not be
+presented as *HNSW recall*. The initial user run stopped on this planner
+choice before it could print duplicate/policy metrics.
+
+The normal run retains this planner choice. To investigate a **controlled
+HNSW filtered alternative** without modifying indexes or source data:
+
+```powershell
+python -m scripts.benchmark_vector_results --force-filtered-hnsw
+```
+
+This applies `SET LOCAL enable_sort=off` inside the filtered search
+transactions, discouraging the exact B-tree-plus-sort plan; each query
+still has its actual plan inspected and printed. This is a planner
+experiment, **not PostgreSQL's normal search configuration**. The script
+will warn if it still does not select HNSW.
 You can explicitly compare the filtered pgvector setting:
 
 ```powershell
 python -m scripts.benchmark_vector_results --iterative-scan strict_order
 ```
 
-This changes search settings only within the PostgreSQL query transaction.
-The test records its settings and attempts to verify that the PostgreSQL
-plan used HNSW. Qdrant may use a full scan for a dataset this small; the
-script displays `indexed_vectors_count` and a warning when no actual
-indexed vectors are reported. Do not describe that result as a demonstrated
-Qdrant HNSW speedup.
+These search settings are scoped to each PostgreSQL query transaction.
+The script verifies the actual PostgreSQL plan and labels queries that
+use exact/planner-selected access separately from HNSW results.
+Qdrant reported `indexed_vectors_count=0` on November 27; the results
+may be full scans rather than HNSW. Do not describe this as a
+demonstrated Qdrant HNSW speedup.
 
 ## Important honesty checks
 
