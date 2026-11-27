@@ -216,7 +216,7 @@ def test_concurrent_expenses_sharing_budget(decision_scenario):
         (winner_id, "approved", employee_id),
     ]
 
-    print("\\nTWO EXPENSES / ONE SHARED BUDGET")
+    print("\nTWO EXPENSES / ONE SHARED BUDGET")
     print("  submitted amounts: EUR 700 + EUR 700")
     print("  starting budget: EUR 1000")
     print("  committed approvals:", len(successes))
