@@ -135,7 +135,7 @@ reproducibility work. The simplified 25-case decision evaluator can be
 reported without touching databases:
 
 ```powershell
-python scripts/report_labeled_decisions.py
+python -m scripts.report_labeled_decisions
 ```
 
 This counts the **pure evaluator**, not 25 complete PostgreSQL/MongoDB/Neo4j
