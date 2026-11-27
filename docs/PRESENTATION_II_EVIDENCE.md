@@ -37,7 +37,7 @@ docker compose -f docker-compose.test.yaml up -d
 Pure labelled evaluator results (no database writes):
 
 ```powershell
-python scripts/report_labeled_decisions.py
+python -m scripts.report_labeled_decisions
 ```
 
 This prints the 25-case denominator, expected outcome counts and mismatches.
