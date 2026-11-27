@@ -71,7 +71,7 @@ def test_approval_evidence_survives_later_budget_change(decision_scenario):
     # This is not a reconstruction from the current mutable budget.
     import json
 
-    print("\\nHISTORICAL DECISION EVIDENCE")
+    print("\nHISTORICAL DECISION EVIDENCE")
     print("  decision id:", decision_id)
     print("  decision timestamp:", created_at.isoformat())
     print("  outcome:", decision)
