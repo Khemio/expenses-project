@@ -478,7 +478,8 @@ def demonstrate_business_join(pg, qdrant, vector):
 
     rows = pg.execute(
         """
-        SELECT v.id, v.source_id, m.expense_id, e.amount, e.status
+        SELECT v.id, v.source_id, m.expense_id, e.amount, e.status,
+               v.content, m.mapping_note
         FROM vector_documents AS v
         JOIN receipt_expense_mapping AS m
           ON m.receipt_document_id = v.id
@@ -493,9 +494,11 @@ def demonstrate_business_join(pg, qdrant, vector):
         print("  SKIPPED: no valid vector-receipt to expense mappings.")
         return
 
-    document_id, source_id, expense_id, amount, status = rows[0]
+    document_id, source_id, expense_id, amount, status, content, mapping_note = rows[0]
     print("  PostgreSQL one-query enriched result:",
           document_id, source_id, expense_id, amount, status)
+    print("  Vector receipt content:", content)
+    print("  Mapping note:", mapping_note)
     qdrant_id = str(uuid.uuid5(uuid.NAMESPACE_URL, document_id))
     points = qdrant.retrieve(
         collection_name=COLLECTION_NAME, ids=[qdrant_id], with_payload=True
@@ -515,8 +518,11 @@ def demonstrate_business_join(pg, qdrant, vector):
     print("  Qdrant ID/payload lookup:", payload["document_id"],
           payload["source_id"])
     print("  PostgreSQL second business lookup:", business)
-    print("  This comparison demonstrates the enrichment step, not identical "
-          "SQL-vs-Qdrant nearest-neighbor ranking.")
+    print("  IMPORTANT: receipt_expense_mapping is a synthetic illustration. "
+          "It does not prove that the linked expense belongs to that receipt "
+          "or that their monetary amounts match.")
+    print("  This demonstrates enrichment mechanics, not verified business "
+          "provenance or equivalent SQL-vs-Qdrant nearest-neighbor rankings.")
 
 
 def main():
