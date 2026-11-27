@@ -141,6 +141,22 @@ python -m scripts.report_labeled_decisions
 This counts the **pure evaluator**, not 25 complete PostgreSQL/MongoDB/Neo4j
 approval transactions.
 
+## Final vector benchmark
+
+The [vector evaluation guide](docs/FINAL_VECTOR_BENCHMARK.md) describes the
+read-only benchmark for the 455-document development dataset, including
+25 labelled duplicate pairs, 20 policy retrieval queries, pgvector vs Qdrant
+ANN recall@10, filtered search, HNSW parameters and documented limitations.
+
+```powershell
+python -m scripts.benchmark_vector_results
+```
+
+This checks database counts and metadata first and does not change application
+records or schema by default. It requires the already-indexed development dataset;
+it is not intended for the isolated integration-test databases. Optional index
+installation requires the explicit `--install-pg-hnsw` flag.
+
 ## Project layout
 
 - `app/api/` — FastAPI routes, request/response schemas and authentication dependency
