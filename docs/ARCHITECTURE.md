@@ -48,7 +48,7 @@ The approval queue computes authorization before pagination; its batched Neo4j c
 ## Other stores
 
 - **MongoDB** stores receipt-shaped documents and enforces a JSON Schema.
-- **Redis** caches approver chains, with expiry and invalidation tests.
+- **Redis** caches approver chains, with expiry and invalidation tests. A [trusted direct-delegation revocation operation](DELEGATION_CACHE_REVOCATION.md) deletes the scoped Neo4j relationship and invalidates the affected delegate's chain. This is not a general delegation-management API; multi-hop invalidation remains unimplemented.
 - **pgvector / Qdrant** store/search embeddings of example receipt and policy documents; the comparison exercises similarity search and metadata filtering.
 
 The database experiments are useful demonstrations, but are not all exposed as endpoints in the current FastAPI surface.

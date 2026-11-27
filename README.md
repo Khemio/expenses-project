@@ -16,6 +16,8 @@ A Python/FastAPI backend prototype for expense submission and review, built to e
 
 The FastAPI application sits in front of the relational workflow and graph authorization services. Approval uses PostgreSQL row locks, a budget-version check, an atomic budget deduction, and a decision record. Approval also requires a matching MongoDB receipt; a failed check leaves the financial state unchanged. Receipt reads and the PostgreSQL commit are not a distributed transaction. Graph authority is checked at decision time, including after escalation.
 
+**Delegation cache demonstration:** The [revocation experiment](docs/DELEGATION_CACHE_REVOCATION.md) shows a stale Redis approver chain after a graph-only change, then safe invalidation/retry. Production approvals still check current Neo4j authority and do not trust a cached chain as permission.
+
 **Authorization rules:** An employee cannot approve or reject their own expense. Ordinary authority is based on `RESPONSIBLE_FOR` and bounded `DELEGATED_TO` paths. The distinct `REVIEWER_FOR` path applies to a cost-centre owner's own expenses. Escalations assign a specific eligible reviewer; revocation is rechecked before completion. The approver queue performs authorization before pagination.
 
 See [architecture and workflow notes](docs/ARCHITECTURE.md) and the [current data model](docs/SCHEMA.md).
