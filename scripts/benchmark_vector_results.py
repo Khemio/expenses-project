@@ -230,20 +230,41 @@ def recall(approx, exact):
     return len(set(approx) & set(exact)) / len(exact) if exact else 1.0
 
 
-def summarize(name, cases):
+def plan_kind(nodes):
+    return "HNSW" if any("hnsw" in node.lower() for node in nodes) else "exact/other"
+
+
+def summarize(name, cases, *, qdrant_indexed):
     print(name)
     print(f"  queries: {len(cases)}")
     for store in ("PostgreSQL", "Qdrant"):
         rec = [x[store + "_recall"] for x in cases]
         times = [x[store + "_ms"] for x in cases]
         counts = [x[store + "_returned"] for x in cases]
+        label = "ANN" if store == "PostgreSQL" else "ANN-requested"
         print(
-            f"  {store}: ANN recall@10={statistics.mean(rec):.4f}, "
+            f"  {store}: {label} vs own exact recall@10="
+            f"{statistics.mean(rec):.4f}, "
             f"mean returned={statistics.mean(counts):.2f}, "
-            f"mean ANN latency={statistics.mean(times):.3f} ms"
+            f"mean query latency={statistics.mean(times):.3f} ms"
+        )
+    paths = Counter(case["PostgreSQL_plan_kind"] for case in cases)
+    print("  PostgreSQL actual access paths:", dict(paths))
+    if paths.get("exact/other", 0):
+        print(
+            "  WARNING: PostgreSQL used non-HNSW plans on some queries. "
+            "Those recall values compare exact/planner results, "
+            "NOT HNSW approximate-recall measurements."
+        )
+    if not qdrant_indexed:
+        print(
+            "  WARNING: Qdrant indexed_vectors_count=0; "
+            "this small dataset may run full scans. "
+            "The requested search is NOT verified as HNSW."
         )
     overlaps = [x["overlap"] for x in cases]
-    print(f"  cross-store ANN top-10 overlap={statistics.mean(overlaps):.2f}/10")
+    print(f"  cross-store requested-search top-10 overlap="
+          f"{statistics.mean(overlaps):.2f}/10")
     for x in cases:
         if x["PostgreSQL_recall"] < 1 or x["Qdrant_recall"] < 1:
             print("  non-perfect query:", x["query_id"],
@@ -263,57 +284,72 @@ def evaluate_ann(pg, qdrant, model, args):
     )
     summaries = {"unfiltered": [], "filtered": []}
 
+    indexed = getattr(
+        qdrant.get_collection(COLLECTION_NAME),
+        "indexed_vectors_count", 0
+    )
     for index, embedding in enumerate(vectors, 1):
         vector = embedding.astype(np.float32).tolist()
         for filtered in (False, True):
             group = "rare" if filtered else None
+            force = bool(filtered and args.force_filtered_hnsw)
             qfilter = qdrant_filter("filter_group", "rare") if filtered else None
-            pg_exact, _ = pg_query(pg, vector, exact=True, group=group)
-            pg_ann, pg_ms = pg_query(
+
+            # Explain before execution, with the same per-query options.
+            plan = pg_query(
                 pg, vector, exact=False, group=group, ef=args.pg_ef,
-                iterative=args.iterative_scan
+                iterative=args.iterative_scan, force_hnsw=force, explain=True
+            )
+            pg_exact, _ = pg_query(pg, vector, exact=True, group=group)
+            pg_result, pg_ms = pg_query(
+                pg, vector, exact=False, group=group, ef=args.pg_ef,
+                iterative=args.iterative_scan, force_hnsw=force
             )
             q_exact, _ = q_query(
                 qdrant, vector, exact=True, condition=qfilter
             )
-            q_ann, q_ms = q_query(
+            q_result, q_ms = q_query(
                 qdrant, vector, exact=False, condition=qfilter, ef=args.q_ef
             )
             entry = {
                 "query_id": f"Q{index:02d}",
-                "PostgreSQL_recall": recall(pg_ann, pg_exact),
-                "Qdrant_recall": recall(q_ann, q_exact),
+                "PostgreSQL_plan_kind": plan_kind(plan),
+                "PostgreSQL_plan": plan,
+                "PostgreSQL_recall": recall(pg_result, pg_exact),
+                "Qdrant_recall": recall(q_result, q_exact),
                 "PostgreSQL_ms": pg_ms,
                 "Qdrant_ms": q_ms,
-                "PostgreSQL_returned": len(pg_ann),
-                "Qdrant_returned": len(q_ann),
-                "overlap": len(set(pg_ann) & set(q_ann)),
+                "PostgreSQL_returned": len(pg_result),
+                "Qdrant_returned": len(q_result),
+                "overlap": len(set(pg_result) & set(q_result)),
             }
             summaries["filtered" if filtered else "unfiltered"].append(entry)
 
-    print("\nHNSW-REQUESTED SEARCH METRICS")
-    print("  query count: 20; k=10; reference=each store's exact top-10")
+    print("\nSEARCH METRICS — ACTUAL POSTGRESQL PLAN VERIFIED PER QUERY")
+    print("  queries: 20; k=10; reference=each store's own exact top-10")
     print("  pg hnsw.ef_search:", args.pg_ef)
     print("  pg hnsw.iterative_scan:", args.iterative_scan)
-    print("  Qdrant hnsw_ef:", args.q_ef)
-    summarize("UNFILTERED", summaries["unfiltered"])
-    summarize("RARE FILTER (~5%)", summaries["filtered"])
+    print("  forced filtered HNSW experiment:", args.force_filtered_hnsw)
+    print("  Qdrant requested hnsw_ef:", args.q_ef)
+    summarize("UNFILTERED", summaries["unfiltered"], qdrant_indexed=indexed)
+    summarize("RARE FILTER (~5%)", summaries["filtered"], qdrant_indexed=indexed)
 
-    # Confirm the database planner really uses an HNSW index, rather
-    # than mistakenly reporting exact SQL as approximate search.
-    first_vector = vectors[0].astype(np.float32).tolist()
-    for group in (None, "rare"):
-        plan = pg_query(
-            pg, first_vector, exact=False, group=group,
-            ef=args.pg_ef, iterative=args.iterative_scan, explain=True
-        )
-        print(f"  PostgreSQL plan ({group or 'unfiltered'}):", plan)
-        if "hnsw" not in plan.lower():
-            raise RuntimeError(
-                "PostgreSQL did not use HNSW for an ANN query; "
-                "do not report its result as HNSW recall"
+    for scope in ("unfiltered", "filtered"):
+        for case in summaries[scope][:1]:
+            print(
+                f"  Example PostgreSQL plan ({scope}, {case['query_id']}):",
+                " -> ".join(case["PostgreSQL_plan"]),
             )
-    return first_vector
+
+    if args.force_filtered_hnsw:
+        if any(case["PostgreSQL_plan_kind"] != "HNSW"
+               for case in summaries["filtered"]):
+            print(
+                "  WARNING: forcing was insufficient for one or more "
+                "filtered queries; do not label them HNSW results."
+            )
+
+    return vectors[0].astype(np.float32).tolist()
 
 
 def evaluate_duplicates(model, args):
@@ -489,6 +525,11 @@ def main():
     parser.add_argument(
         "--iterative-scan", choices=["off", "strict_order"],
         default="off"
+    )
+    parser.add_argument(
+        "--force-filtered-hnsw", action="store_true",
+        help="Experimental query-local planner hint: disable Sort "
+             "to discourage PostgreSQL's indexed-filter + sort path"
     )
     parser.add_argument("--install-pg-hnsw", action="store_true")
     args = parser.parse_args()
