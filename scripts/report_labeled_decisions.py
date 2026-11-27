@@ -1,7 +1,7 @@
 """Print reproducible labelled decision outcomes (pure evaluator only).
 
 Run from repository root:
-    python scripts/report_labeled_decisions.py
+    python -m scripts.report_labeled_decisions
 This is distinct from the database-backed approval workflow.
 """
 import json
