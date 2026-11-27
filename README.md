@@ -18,6 +18,8 @@ The FastAPI application sits in front of the relational workflow and graph autho
 
 **Delegation cache demonstration:** The [revocation experiment](docs/DELEGATION_CACHE_REVOCATION.md) shows a stale Redis approver chain after a graph-only change, then safe invalidation/retry. Production approvals still check current Neo4j authority and do not trust a cached chain as permission.
 
+**Branching authorization demonstration:** The [two-path Neo4j experiment](docs/BRANCHING_DELEGATION.md) shows that a shared delegate keeps authority when one valid path is revoked, but loses it when none remain. It uses existing authorization queries and is test-only.
+
 **Authorization rules:** An employee cannot approve or reject their own expense. Ordinary authority is based on `RESPONSIBLE_FOR` and bounded `DELEGATED_TO` paths. The distinct `REVIEWER_FOR` path applies to a cost-centre owner's own expenses. Escalations assign a specific eligible reviewer; revocation is rechecked before completion. The approver queue performs authorization before pagination.
 
 See [architecture and workflow notes](docs/ARCHITECTURE.md) and the [current data model](docs/SCHEMA.md).

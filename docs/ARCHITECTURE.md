@@ -38,7 +38,7 @@ Rejections create a decision without deducting budget. Escalations record an exp
 ## Neo4j authority
 
 - `RESPONSIBLE_FOR`: direct cost-centre owner.
-- `DELEGATED_TO`: multi-hop scoped authority, bounded by integer-cent amount limits and validity dates.
+- `DELEGATED_TO`: multi-hop scoped authority, bounded by integer-cent amount limits and validity dates. A [branching/converging path experiment](BRANCHING_DELEGATION.md) demonstrates multiple valid routes to a shared delegate and independent route revocation.
 - `REVIEWER_FOR`: explicit independent reviewer for expenses **submitted by** the responsible owner.
 
 Self-decisions are forbidden across authorization paths. For an ordinary employee's escalation, the responsible owner is the target. If the responsible owner is the submitter, the target is the independently assigned reviewer. A reviewer cannot use `REVIEWER_FOR` to approve arbitrary employees' expenses.
