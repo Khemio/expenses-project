@@ -22,7 +22,8 @@ def test_approval_evidence_survives_later_budget_change(decision_scenario):
     with get_connection() as conn:
         record = conn.execute(
             """
-            SELECT rule_version, evidence_snapshot
+            SELECT id, created_at, decision, comment,
+                   rule_version, evidence_snapshot
             FROM decisions
             WHERE expense_id = %s AND decision = 'approved'
             """,
@@ -30,7 +31,7 @@ def test_approval_evidence_survives_later_budget_change(decision_scenario):
         ).fetchone()
 
         assert record is not None
-        rule_version, evidence = record
+        decision_id, created_at, decision, comment, rule_version, evidence = record
         assert rule_version == "expense-workflow-v2"
         assert evidence["schema_version"] == 1
         assert Decimal(evidence["expense"]["amount"]) == Decimal("700")
@@ -65,6 +66,22 @@ def test_approval_evidence_survives_later_budget_change(decision_scenario):
 
     assert persisted == evidence
     assert persisted["budget"]["remaining_after"] == "1300.00"
+
+    # Print saved, transactionally persisted values for Presentation II.
+    # This is not a reconstruction from the current mutable budget.
+    import json
+
+    print("\nHISTORICAL DECISION EVIDENCE")
+    print("  decision id:", decision_id)
+    print("  decision timestamp:", created_at.isoformat())
+    print("  outcome:", decision)
+    print("  comment:", comment)
+    print("  rule version:", rule_version)
+    print("  source-backed evidence:")
+    print(json.dumps(evidence, indent=2, sort_keys=True))
+    print("  current budget was changed to EUR 900 after approval")
+    print("  retained original approved balance:", persisted["budget"]["remaining_after"])
+
 
 
 def test_escalation_evidence_records_assigned_reviewer(decision_scenario):

@@ -215,3 +215,12 @@ def test_concurrent_expenses_sharing_budget(decision_scenario):
     assert decisions == [
         (winner_id, "approved", employee_id),
     ]
+
+    print("\nTWO EXPENSES / ONE SHARED BUDGET")
+    print("  submitted amounts: EUR 700 + EUR 700")
+    print("  starting budget: EUR 1000")
+    print("  committed approvals:", len(successes))
+    print("  version conflicts:", len(conflicts))
+    print("  budget remaining:", budget[0])
+    print("  budget version:", budget[1])
+    print("  decisions recorded:", len(decisions))
