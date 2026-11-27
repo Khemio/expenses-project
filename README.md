@@ -127,6 +127,20 @@ MongoDB source version 1 → stale pgvector/Qdrant copies → version 2 refresh.
 Run it with `python scripts/run_integration_tests.py -s -v tests/integration/test_source_refresh.py`.
 It uses only isolated test records and deterministic synthetic vectors. Last user-verified result (November 26, 2026): **55 unit tests** and **112 integration tests** passed (before the receipt-evidence gate). Test counts may change as development continues.
 
+## Presentation II evidence
+
+The [evidence runbook](docs/PRESENTATION_II_EVIDENCE.md) lists the exact
+isolated test commands, labelled datasets, and remaining benchmark
+reproducibility work. The simplified 25-case decision evaluator can be
+reported without touching databases:
+
+```powershell
+python scripts/report_labeled_decisions.py
+```
+
+This counts the **pure evaluator**, not 25 complete PostgreSQL/MongoDB/Neo4j
+approval transactions.
+
 ## Project layout
 
 - `app/api/` — FastAPI routes, request/response schemas and authentication dependency
