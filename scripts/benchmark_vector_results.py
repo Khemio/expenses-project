@@ -13,6 +13,7 @@ Never silently create fake embeddings, evaluation labels or missing source data.
 
 import argparse
 import json
+from collections import Counter
 import statistics
 import time
 import uuid
@@ -156,7 +157,7 @@ def check_pg_hnsw(pg, install):
 
 
 def pg_query(pg, vector, *, exact, group=None, limit=K, ef=64, iterative="off",
-             explain=False):
+             force_hnsw=False, explain=False):
     where = "WHERE filter_group = %s" if group is not None else ""
     sql = (
         f"SELECT id FROM vector_documents {where} "
@@ -171,7 +172,12 @@ def pg_query(pg, vector, *, exact, group=None, limit=K, ef=64, iterative="off",
         else:
             pg.execute("SET LOCAL enable_seqscan = off")
             pg.execute("SET LOCAL enable_bitmapscan = off")
-            pg.execute("SELECT set_config('hnsw.ef_search', %s, true)",
+            if force_hnsw:
+                # A controlled experiment: discourage the B-tree + Sort
+                # plan for highly selective filters. This is *not* how the
+                # default PostgreSQL planner would choose to execute it.
+                pg.execute("SET LOCAL enable_sort = off")
+            pg.execute("SELECT set_config('hnsw.ef_search', %s, true)
                        (str(ef),))
             if iterative != "off":
                 pg.execute(
@@ -180,9 +186,24 @@ def pg_query(pg, vector, *, exact, group=None, limit=K, ef=64, iterative="off",
                 )
 
         if explain:
-            return "\n".join(
-                row[0] for row in pg.execute("EXPLAIN " + sql, args).fetchall()
-            )
+            # JSON plans let us report index names without dumping a
+            # 384-component vector into the presentation evidence.
+            raw = pg.execute(
+                "EXPLAIN (FORMAT JSON) " + sql, args
+            ).fetchone()[0]
+            plan = json.loads(raw) if isinstance(raw, str) else raw
+            nodes = []
+
+            def visit(node):
+                name = node["Node Type"]
+                if node.get("Index Name"):
+                    name += " using " + node["Index Name"]
+                nodes.append(name)
+                for child in node.get("Plans", []):
+                    visit(child)
+
+            visit(plan[0]["Plan"])
+            return nodes
 
         start = time.perf_counter()
         rows = pg.execute(sql, args).fetchall()
